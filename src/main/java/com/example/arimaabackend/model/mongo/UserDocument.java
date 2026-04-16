@@ -1,0 +1,44 @@
+package com.example.arimaabackend.model.mongo;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document("users")
+public class UserDocument {
+
+    @Id
+    private String id;
+
+    private Long sqlId;
+    private String username;
+    private String email;
+
+    public String getId() {
+        return id;
+    }
+
+    public Long getSqlId() {
+        return sqlId;
+    }
+
+    public void setSqlId(Long sqlId) {
+        this.sqlId = sqlId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+}
+

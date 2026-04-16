@@ -1,0 +1,36 @@
+package com.example.arimaabackend.controllers;
+import com.example.arimaabackend.dto.UserCreateRequest;
+import com.example.arimaabackend.dto.UserResponse;
+import com.example.arimaabackend.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse create(@Valid @RequestBody UserCreateRequest request) {
+        return userService.create(request);
+    }
+
+    @GetMapping("/{id}")
+    public UserResponse getById(@PathVariable Long id) {
+        return userService.getById(id);
+    }
+}
+

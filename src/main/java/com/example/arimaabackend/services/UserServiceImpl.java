@@ -1,14 +1,14 @@
-package com.example.arimaabackend.service;
-
-import com.example.arimaabackend.dto.UserCreateRequest;
-import com.example.arimaabackend.dto.UserResponse;
-import com.example.arimaabackend.model.sql.UserEntity;
-import com.example.arimaabackend.repository.sql.UserJpaRepository;
+package com.example.arimaabackend.services;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.example.arimaabackend.dto.UserCreateRequest;
+import com.example.arimaabackend.dto.UserResponse;
+import com.example.arimaabackend.model.sql.UserEntity;
+import com.example.arimaabackend.repository.sql.UserJpaRepository;
 
 @Service
 @Transactional

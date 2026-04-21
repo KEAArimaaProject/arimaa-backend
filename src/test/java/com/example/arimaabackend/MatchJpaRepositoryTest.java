@@ -1,0 +1,105 @@
+package com.example.arimaabackend;
+
+import com.example.arimaabackend.model.sql.CountryEntity;
+import com.example.arimaabackend.model.sql.EventEntity;
+import com.example.arimaabackend.model.sql.GameTypeEntity;
+import com.example.arimaabackend.model.sql.MatchEntity;
+import com.example.arimaabackend.model.sql.PlayerEntity;
+import com.example.arimaabackend.repository.sql.CountryJpaRepository;
+import com.example.arimaabackend.repository.sql.EventJpaRepository;
+import com.example.arimaabackend.repository.sql.GameTypeJpaRepository;
+import com.example.arimaabackend.repository.sql.MatchJpaRepository;
+import com.example.arimaabackend.repository.sql.PlayerJpaRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DataJpaTest
+class MatchJpaRepositoryTest {
+
+    @Autowired
+    private MatchJpaRepository matchJpaRepository;
+
+    @Autowired
+    private PlayerJpaRepository playerJpaRepository;
+
+    @Autowired
+    private CountryJpaRepository countryJpaRepository;
+
+    @Autowired
+    private EventJpaRepository eventJpaRepository;
+
+    @Autowired
+    private GameTypeJpaRepository gameTypeJpaRepository;
+
+    @Test
+    void shouldSaveAndLoadMatchAndFindByPlayerIds() {
+        var countryUs = new CountryEntity();
+        countryUs.setId(1);
+        countryUs.setName("US");
+        countryJpaRepository.save(countryUs);
+
+        var countryAu = new CountryEntity();
+        countryAu.setId(2);
+        countryAu.setName("AU");
+        countryJpaRepository.save(countryAu);
+
+        var silver = new PlayerEntity();
+        silver.setId(4803);
+        silver.setUsername("Matthias");
+        silver.setPassword("secret");
+        silver.setCountry(countryUs);
+        playerJpaRepository.save(silver);
+
+        var gold = new PlayerEntity();
+        gold.setId(4613);
+        gold.setUsername("bot_GnoBot2006P1");
+        gold.setPassword("secret");
+        gold.setCountry(countryAu);
+        playerJpaRepository.save(gold);
+
+        var event = new EventEntity();
+        event.setId(1);
+        event.setName("Casual game");
+        event.setOfficial(false);
+        event.setRated(false);
+        event.setRating(0);
+        eventJpaRepository.save(event);
+
+        var gameType = new GameTypeEntity();
+        gameType.setId(1);
+        gameType.setName("Over the Net");
+        gameType.setTimeIncrement(2);
+        gameType.setTimeReserve(2);
+        gameTypeJpaRepository.save(gameType);
+
+        var match = new MatchEntity();
+        match.setId(27557);
+        match.setTerminationType("test");
+        match.setSilverPlayer(silver);
+        match.setGoldPlayer(gold);
+        match.setMatchResult("unknown");
+        match.setEvent(event);
+        match.setGameType(gameType);
+
+        matchJpaRepository.save(match);
+
+        var loaded = matchJpaRepository.findById(27557);
+
+        assertThat(loaded).isPresent();
+        assertThat(loaded.get().getSilverPlayer().getUsername()).isEqualTo("Matthias");
+        assertThat(loaded.get().getGoldPlayer().getUsername()).isEqualTo("bot_GnoBot2006P1");
+
+        var bySilver = matchJpaRepository.findBySilverPlayer_Id(4803);
+        var byGold = matchJpaRepository.findByGoldPlayer_Id(4613);
+        var byEvent = matchJpaRepository.findByEvent_Id(1);
+        var byGameType = matchJpaRepository.findByGameType_Id(1);
+
+        assertThat(bySilver).hasSize(1);
+        assertThat(byGold).hasSize(1);
+        assertThat(byEvent).hasSize(1);
+        assertThat(byGameType).hasSize(1);
+    }
+}

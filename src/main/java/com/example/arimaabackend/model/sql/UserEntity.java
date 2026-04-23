@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@Table(name = "users")
+@Table(name = "Users")
 public class UserEntity {
 
     @Id
@@ -27,20 +27,21 @@ public class UserEntity {
     @Column(nullable = false, unique = true, length = 254)
     private String email;
 
-    @Column(nullable = false, length = 72)
+    @Column(name = "password", nullable = false, length = 100)
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserRole role = UserRole.USER;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     @PrePersist
+    @SuppressWarnings("unused")
     void prePersist() {
         var now = Instant.now();
         this.createdAt = now;
@@ -51,6 +52,7 @@ public class UserEntity {
     }
 
     @PreUpdate
+    @SuppressWarnings("unused")
     void preUpdate() {
         this.updatedAt = Instant.now();
     }
@@ -99,3 +101,4 @@ public class UserEntity {
         return updatedAt;
     }
 }
+

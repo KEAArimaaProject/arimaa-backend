@@ -5,17 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record UserCreateRequest(
-
-        @NotBlank
-        @Size(max = 50)
+        @NotBlank @Size(max = 50)
         String username,
 
-        @NotBlank
-        @Email
-        @Size(max = 254)
+        @Email @NotBlank @Size(max = 254)
         String email,
 
-        @NotBlank
-        @Size(min = 8, max = 72) // BCrypt silently truncates beyond 72 chars
+        @NotBlank @Size(min = 8, max = 100)
         String password
 ) {}
+

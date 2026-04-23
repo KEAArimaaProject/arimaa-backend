@@ -19,32 +19,20 @@ public class UserServiceImpl implements UserService {
     private final UserJpaRepository userJpaRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserJpaRepository userJpaRepository,
-                           PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserJpaRepository userJpaRepository, PasswordEncoder passwordEncoder) {
         this.userJpaRepository = userJpaRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-@Override
-public UserResponse create(UserCreateRequest request) {
-    if (userJpaRepository.existsByUsername(request.username())) {
-        throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Username '%s' is already taken".formatted(request.username()));
+    @Override
+    public UserResponse create(UserCreateRequest request) {
+        var entity = new UserEntity();
+        entity.setUsername(request.username());
+        entity.setEmail(request.email());
+        entity.setPasswordHash(passwordEncoder.encode(request.password()));
+        entity = userJpaRepository.save(entity);
+        return toResponse(entity);
     }
-    if (userJpaRepository.existsByEmail(request.email())) {
-        throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Email '%s' is already registered".formatted(request.email()));
-    }
-
-    var entity = new UserEntity();
-    entity.setUsername(request.username());
-    entity.setEmail(request.email());
-    entity.setPassword(passwordEncoder.encode(request.password())); // BCrypt hash
-    entity.setRole(UserRole.PLAYER);
-
-    entity = userJpaRepository.save(entity);
-    return toResponse(entity);
-}
 
     @Override
     @Transactional(readOnly = true)
@@ -54,15 +42,23 @@ public UserResponse create(UserCreateRequest request) {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User %d not found".formatted(id)));
     }
 
+    @Override
+    public void deleteById(Long id) {
+        if (!userJpaRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User %d not found".formatted(id));
+        }
+        userJpaRepository.deleteById(id);
+    }
+
     private static UserResponse toResponse(UserEntity entity) {
         return new UserResponse(
                 entity.getId(),
                 entity.getUsername(),
                 entity.getEmail(),
+                entity.getRole().name(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
     }
 }
-
 

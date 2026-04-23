@@ -22,6 +22,10 @@ From the project root:
 ```bash
 mvn spring-boot:run
 ```
+or, if you use the project's Maven wrapper: 
+```bash
+.\mvnw.cmd spring-boot:run
+```
 
 Main endpoints:
 - `POST /api/users`

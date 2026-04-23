@@ -11,7 +11,7 @@ public class PositionNode {
 
     private String color;
     private String piece;
-    private String cordinate;
+    private String coordinate;
 
     public Integer getId() {
         return id;
@@ -37,12 +37,12 @@ public class PositionNode {
         this.piece = piece;
     }
 
-    public String getCordinate() {
-        return cordinate;
+    public String getCoordinate() {
+        return coordinate;
     }
 
-    public void setCordinate(String cordinate) {
-        this.cordinate = cordinate;
+    public void setCoordinate(String coordinate) {
+        this.coordinate = coordinate;
     }
 }
 

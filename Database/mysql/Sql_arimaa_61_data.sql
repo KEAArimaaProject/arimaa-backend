@@ -73,6 +73,18 @@ INSERT INTO `Moves` VALUES (115514,2,0,'n','1',669122,2717),(115515,2,1,'n','1',
 /*!40000 ALTER TABLE `Moves` ENABLE KEYS */;
 UNLOCK TABLES;
 
+-- Remove duplicated move rows (keep the lowest `id` per logical move).
+DELETE m1
+FROM `Moves` m1
+JOIN `Moves` m2
+  ON m1.`matches_id` = m2.`matches_id`
+ AND m1.`turn` = m2.`turn`
+ AND m1.`sequence` = m2.`sequence`
+ AND m1.`direction` = m2.`direction`
+ AND m1.`status` = m2.`status`
+ AND m1.`position_id` = m2.`position_id`
+ AND m1.`id` > m2.`id`;
+
 --
 -- Dumping data for table `OpeningsByMatch`
 --

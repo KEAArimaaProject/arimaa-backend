@@ -21,7 +21,7 @@ public class PuzzleNode {
     private List<SolutionNode> solutions;
 
     @Relationship(type = "HAS_OPENING")
-    private List<OpeningByPuzzleRelationship> openings;
+    private List<OpeningNode> openings;
 
     public Integer getId() {
         return id;
@@ -71,11 +71,11 @@ public class PuzzleNode {
         this.solutions = solutions;
     }
 
-    public List<OpeningByPuzzleRelationship> getOpenings() {
+    public List<OpeningNode> getOpenings() {
         return openings;
     }
 
-    public void setOpenings(List<OpeningByPuzzleRelationship> openings) {
+    public void setOpenings(List<OpeningNode> openings) {
         this.openings = openings;
     }
 }

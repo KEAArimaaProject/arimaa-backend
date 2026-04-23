@@ -87,7 +87,7 @@ public class PositionNeo4jMigration implements MigrationStep {
         n.setId(e.getId());
         n.setColor(e.getColor());
         n.setPiece(e.getPiece());
-        n.setCordinate(e.getCordinate());
+        n.setCoordinate(e.getCoordinate());
         return n;
     }
 }

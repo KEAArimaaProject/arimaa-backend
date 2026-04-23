@@ -17,11 +17,8 @@ public class MatchNode {
     private String matchResult;
     private Instant timestamp;
 
-    @Relationship(type = "SILVER_PLAYER")
-    private PlayerNode silverPlayer;
-
-    @Relationship(type = "GOLD_PLAYER")
-    private PlayerNode goldPlayer;
+    @Relationship(type = "HAS_PLAYER")
+    private List<MatchPlayerRelationship> players;
 
     @Relationship(type = "IN_EVENT")
     private EventNode event;
@@ -29,11 +26,11 @@ public class MatchNode {
     @Relationship(type = "HAS_GAMETYPE")
     private GameTypeNode gameType;
 
-    @Relationship(type = "HAS_MOVE")
-    private List<MoveNode> moves;
+    @Relationship(type = "HAS_MOVELIST")
+    private MoveListNode moveList;
 
     @Relationship(type = "HAS_OPENING")
-    private List<OpeningByMatchRelationship> openings;
+    private List<OpeningNode> openings;
 
     public Integer getId() {
         return id;
@@ -67,20 +64,12 @@ public class MatchNode {
         this.timestamp = timestamp;
     }
 
-    public PlayerNode getSilverPlayer() {
-        return silverPlayer;
+    public List<MatchPlayerRelationship> getPlayers() {
+        return players;
     }
 
-    public void setSilverPlayer(PlayerNode silverPlayer) {
-        this.silverPlayer = silverPlayer;
-    }
-
-    public PlayerNode getGoldPlayer() {
-        return goldPlayer;
-    }
-
-    public void setGoldPlayer(PlayerNode goldPlayer) {
-        this.goldPlayer = goldPlayer;
+    public void setPlayers(List<MatchPlayerRelationship> players) {
+        this.players = players;
     }
 
     public EventNode getEvent() {
@@ -99,19 +88,19 @@ public class MatchNode {
         this.gameType = gameType;
     }
 
-    public List<MoveNode> getMoves() {
-        return moves;
+    public MoveListNode getMoveList() {
+        return moveList;
     }
 
-    public void setMoves(List<MoveNode> moves) {
-        this.moves = moves;
+    public void setMoveList(MoveListNode moveList) {
+        this.moveList = moveList;
     }
 
-    public List<OpeningByMatchRelationship> getOpenings() {
+    public List<OpeningNode> getOpenings() {
         return openings;
     }
 
-    public void setOpenings(List<OpeningByMatchRelationship> openings) {
+    public void setOpenings(List<OpeningNode> openings) {
         this.openings = openings;
     }
 }

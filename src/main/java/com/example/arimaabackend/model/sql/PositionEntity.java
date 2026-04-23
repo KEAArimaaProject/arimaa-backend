@@ -19,7 +19,7 @@ public class PositionEntity {
     private String piece;
 
     @Column(name = "cordinate", nullable = false, length = 2)
-    private String cordinate;
+    private String coordinate;
 
     public Integer getId() {
         return id;
@@ -45,11 +45,11 @@ public class PositionEntity {
         this.piece = piece;
     }
 
-    public String getCordinate() {
-        return cordinate;
+    public String getCoordinate() {
+        return coordinate;
     }
 
-    public void setCordinate(String cordinate) {
-        this.cordinate = cordinate;
+    public void setCoordinate(String coordinate) {
+        this.coordinate = coordinate;
     }
 }

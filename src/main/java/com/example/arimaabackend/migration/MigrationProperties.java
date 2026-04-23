@@ -32,7 +32,7 @@ public class MigrationProperties {
      */
     private List<String> enabledSteps = new ArrayList<>();
 
-    private int batchSize = 500;
+    private int batchSize = 1000;
 
     private boolean dryRun = false;
 

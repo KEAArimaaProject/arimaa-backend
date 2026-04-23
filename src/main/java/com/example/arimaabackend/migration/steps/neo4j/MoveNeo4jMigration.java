@@ -19,9 +19,7 @@ import com.example.arimaabackend.migration.spi.MigrationStep;
 import com.example.arimaabackend.migration.spi.MigrationTarget;
 import com.example.arimaabackend.migration.support.Neo4jLinkSupport;
 import com.example.arimaabackend.migration.support.Neo4jTransactionHelper;
-import com.example.arimaabackend.model.neo4j.MoveNode;
 import com.example.arimaabackend.model.sql.MoveEntity;
-import com.example.arimaabackend.repository.neo4j.MoveNeo4jRepository;
 import com.example.arimaabackend.repository.sql.MoveJpaRepository;
 
 @Service
@@ -31,18 +29,15 @@ public class MoveNeo4jMigration implements MigrationStep {
     private static final Logger log = LoggerFactory.getLogger(MoveNeo4jMigration.class);
 
     private final MoveJpaRepository moveJpaRepository;
-    private final MoveNeo4jRepository moveNeo4jRepository;
     private final Neo4jLinkSupport neo4jLinkSupport;
     private final Neo4jTransactionHelper neo4jTransactionHelper;
 
     public MoveNeo4jMigration(
             MoveJpaRepository moveJpaRepository,
-            MoveNeo4jRepository moveNeo4jRepository,
             Neo4jLinkSupport neo4jLinkSupport,
             Neo4jTransactionHelper neo4jTransactionHelper
     ) {
         this.moveJpaRepository = moveJpaRepository;
-        this.moveNeo4jRepository = moveNeo4jRepository;
         this.neo4jLinkSupport = neo4jLinkSupport;
         this.neo4jTransactionHelper = neo4jTransactionHelper;
     }
@@ -76,39 +71,29 @@ public class MoveNeo4jMigration implements MigrationStep {
             if (!slice.hasContent()) {
                 break;
             }
-            List<MoveNode> nodes = new ArrayList<>(slice.getNumberOfElements());
-            List<Map<String, Object>> linkRows = new ArrayList<>(slice.getNumberOfElements());
+            List<Map<String, Object>> rows = new ArrayList<>(slice.getNumberOfElements());
             for (MoveEntity e : slice) {
-                nodes.add(toNode(e));
-                linkRows.add(linkRow(e));
+                rows.add(row(e));
             }
             neo4jTransactionHelper.write(() -> {
-                moveNeo4jRepository.saveAll(nodes);
-                neo4jLinkSupport.mergeHasMoveEdges(linkRows);
-                neo4jLinkSupport.mergeMovePositionEdges(linkRows);
+                neo4jLinkSupport.mergeMovesBatch(rows);
             });
-            migrated += nodes.size();
+            migrated += rows.size();
             if (!slice.hasNext()) {
                 break;
             }
         }
-        log.info("[{}] migrated {} moves (nodes + HAS_MOVE edges)", stepName(), migrated);
+        log.info("[{}] migrated {} moves (nodes + edges in one batch query)", stepName(), migrated);
     }
 
-    private MoveNode toNode(MoveEntity e) {
-        var n = new MoveNode();
-        n.setId(e.getId());
-        n.setTurn(e.getTurn());
-        n.setSequence(e.getSequence());
-        n.setDirection(e.getDirection());
-        n.setStatus(e.getStatus());
-        return n;
-    }
-
-    private Map<String, Object> linkRow(MoveEntity e) {
+    private Map<String, Object> row(MoveEntity e) {
         var m = new HashMap<String, Object>();
         m.put("matchId", e.getMatch().getId());
         m.put("moveId", e.getId());
+        m.put("turn", e.getTurn());
+        m.put("sequence", e.getSequence());
+        m.put("direction", e.getDirection());
+        m.put("status", e.getStatus());
         m.put("positionId", e.getPosition().getId());
         return m;
     }

@@ -27,6 +27,9 @@ public class UserEntity {
     @Column(nullable = false, unique = true, length = 254)
     private String email;
 
+    @Column(nullable = false, length = 72)
+    private String passwordHash;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserRole role = UserRole.USER;
@@ -70,6 +73,14 @@ public class UserEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public UserRole getRole() {

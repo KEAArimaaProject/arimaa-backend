@@ -7,5 +7,7 @@ public interface UserService {
     UserResponse create(UserCreateRequest request);
 
     UserResponse getById(Long id);
+
+    void deleteById(Long id);
 }
 

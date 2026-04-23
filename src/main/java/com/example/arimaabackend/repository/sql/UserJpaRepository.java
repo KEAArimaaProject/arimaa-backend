@@ -18,6 +18,7 @@ public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String email);
 
     boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 
     // JOQL SQL @Query example. Uses UserEntity as table reference
     @Query("select u from UserEntity u where lower(u.email) like lower(concat('%', :part, '%'))")

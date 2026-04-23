@@ -1,6 +1,7 @@
 package com.example.arimaabackend.migration.steps.mongodb;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -51,7 +52,7 @@ public class UserMongoMigration implements MigrationStep {
             log.info("[{}] dry-run: would migrate {} rows", stepName(), userJpaRepository.count());
             return;
         }
-        var documents = userJpaRepository.findAll().stream().map(this::toDocument).toList();
+        List<UserDocument> documents = userJpaRepository.findAll().stream().map(this::toDocument).toList();
         userMongoRepository.saveAll(documents);
         log.info("[{}] migrated {} users", stepName(), documents.size());
     }

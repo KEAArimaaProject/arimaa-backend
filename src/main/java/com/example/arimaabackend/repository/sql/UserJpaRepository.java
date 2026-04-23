@@ -17,6 +17,8 @@ public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
     // JPA then maps that to real SQL against the 'users' table.
     Optional<UserEntity> findByEmail(String email);
 
+    Optional<UserEntity> findByUsername(String username);
+
     boolean existsByUsername(String username);
 
     // JOQL SQL @Query example. Uses UserEntity as table reference

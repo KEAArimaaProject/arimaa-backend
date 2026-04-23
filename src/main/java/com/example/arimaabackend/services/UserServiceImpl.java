@@ -1,6 +1,5 @@
 package com.example.arimaabackend.services;
 
-import com.example.arimaabackend.enums.UserRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

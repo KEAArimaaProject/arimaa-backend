@@ -7,17 +7,17 @@ import org.springframework.data.neo4j.core.schema.Node;
 public class UserNode {
 
     @Id
-    private Long sqlId;
+    private Long id;
 
     private String username;
     private String email;
 
-    public Long getSqlId() {
-        return sqlId;
+    public Long getId() {
+        return id;
     }
 
-    public void setSqlId(Long sqlId) {
-        this.sqlId = sqlId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {

@@ -17,6 +17,10 @@ public class UserDocument {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public Long getSqlId() {
         return sqlId;
     }
@@ -41,4 +45,3 @@ public class UserDocument {
         this.email = email;
     }
 }
-

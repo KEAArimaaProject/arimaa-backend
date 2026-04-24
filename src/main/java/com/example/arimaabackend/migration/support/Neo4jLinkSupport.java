@@ -150,6 +150,23 @@ public class Neo4jLinkSupport {
                 .run();
     }
 
+    public void mergePlayerUserEdges(List<Map<String, Object>> rows) {
+        if (rows.isEmpty()) {
+            return;
+        }
+        neo4jClient
+                .query(
+                        """
+                        UNWIND $rows AS row
+                        MATCH (p:Player {id: row.playerId})
+                        MATCH (u:User {id: row.userId})
+                        MERGE (p)-[:HAS_USER]->(u)
+                        """
+                )
+                .bindAll(Map.of("rows", rows))
+                .run();
+    }
+
     public void mergeMatchReferenceEdges(List<Map<String, Object>> rows) {
         if (rows.isEmpty()) {
             return;

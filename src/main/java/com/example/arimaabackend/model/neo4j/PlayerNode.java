@@ -1,7 +1,5 @@
 package com.example.arimaabackend.model.neo4j;
 
-import java.time.Instant;
-
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -12,13 +10,12 @@ public class PlayerNode {
     @Id
     private Integer id;
 
-    private String username;
-    private String email;
-    private String password;
-    private Instant createTime;
     private Integer rating;
     private Integer ru;
     private Integer gamesPlayed;
+
+    @Relationship(type = "HAS_USER")
+    private UserNode user;
 
     @Relationship(type = "IN_COUNTRY")
     private CountryNode country;
@@ -29,38 +26,6 @@ public class PlayerNode {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Instant getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Instant createTime) {
-        this.createTime = createTime;
     }
 
     public Integer getRating() {
@@ -85,6 +50,14 @@ public class PlayerNode {
 
     public void setGamesPlayed(Integer gamesPlayed) {
         this.gamesPlayed = gamesPlayed;
+    }
+
+    public UserNode getUser() {
+        return user;
+    }
+
+    public void setUser(UserNode user) {
+        this.user = user;
     }
 
     public CountryNode getCountry() {

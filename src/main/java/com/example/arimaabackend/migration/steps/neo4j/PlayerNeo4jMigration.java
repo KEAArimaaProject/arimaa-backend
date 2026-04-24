@@ -18,6 +18,7 @@ import com.example.arimaabackend.migration.spi.MigrationTarget;
 import com.example.arimaabackend.migration.support.Neo4jLinkSupport;
 import com.example.arimaabackend.migration.support.Neo4jTransactionHelper;
 import com.example.arimaabackend.model.neo4j.PlayerNode;
+import com.example.arimaabackend.model.neo4j.UserNode;
 import com.example.arimaabackend.model.sql.PlayerEntity;
 import com.example.arimaabackend.repository.neo4j.PlayerNeo4jRepository;
 import com.example.arimaabackend.repository.sql.PlayerJpaRepository;
@@ -70,9 +71,11 @@ public class PlayerNeo4jMigration implements MigrationStep {
         var entities = playerJpaRepository.findAll();
         var nodes = entities.stream().map(this::toNode).toList();
         List<Map<String, Object>> countryRows = entities.stream().map(this::countryLinkRow).toList();
+        List<Map<String, Object>> userRows = entities.stream().map(this::userLinkRow).toList();
         neo4jTransactionHelper.write(() -> {
             playerNeo4jRepository.saveAll(nodes);
             neo4jLinkSupport.mergePlayerCountryEdges(countryRows);
+            neo4jLinkSupport.mergePlayerUserEdges(userRows);
         });
         log.info("[{}] migrated {} players", stepName(), nodes.size());
     }
@@ -80,20 +83,33 @@ public class PlayerNeo4jMigration implements MigrationStep {
     private PlayerNode toNode(PlayerEntity e) {
         var n = new PlayerNode();
         n.setId(e.getId());
-        n.setUsername(e.getUsername());
-        n.setEmail(e.getEmail());
-        n.setPassword(e.getPassword());
-        n.setCreateTime(e.getCreateTime());
+        n.setUser(userRef(e.getUser()));
         n.setRating(e.getRating());
         n.setRu(e.getRu());
         n.setGamesPlayed(e.getGamesPlayed());
         return n;
     }
 
+    private UserNode userRef(com.example.arimaabackend.model.sql.UserEntity userEntity) {
+        if (userEntity == null) {
+            return null;
+        }
+        var u = new UserNode();
+        u.setId(userEntity.getId());
+        return u;
+    }
+
     private Map<String, Object> countryLinkRow(PlayerEntity e) {
         var m = new HashMap<String, Object>();
         m.put("playerId", e.getId());
         m.put("countryId", e.getCountry().getId());
+        return m;
+    }
+
+    private Map<String, Object> userLinkRow(PlayerEntity e) {
+        var m = new HashMap<String, Object>();
+        m.put("playerId", e.getId());
+        m.put("userId", e.getUser().getId());
         return m;
     }
 }

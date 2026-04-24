@@ -6,9 +6,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-
-import java.time.Instant;
 
 @Entity
 @Table(name = "Players")
@@ -17,17 +16,9 @@ public class PlayerEntity {
     @Id
     private Integer id;
 
-    @Column(nullable = false, unique = true, length = 32)
-    private String username;
-
-    @Column(unique = true, length = 255)
-    private String email;
-
-    @Column(nullable = false, length = 32)
-    private String password;
-
-    @Column(name = "create_time")
-    private Instant createTime;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private UserEntity user;
 
     private Integer rating;
 
@@ -49,36 +40,12 @@ public class PlayerEntity {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public UserEntity getUser() {
+        return user;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Instant getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Instant createTime) {
-        this.createTime = createTime;
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 
     public Integer getRating() {

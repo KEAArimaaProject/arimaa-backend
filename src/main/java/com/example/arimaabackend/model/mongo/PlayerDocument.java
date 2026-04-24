@@ -5,24 +5,26 @@ import java.time.Instant;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("users")
-public class UserDocument {
+@Document("players")
+public class PlayerDocument {
 
     @Id
-    private Long id;
+    private Integer id;
 
     private String username;
     private String email;
-    private String passwordHash;
-    private String role;
     private Instant createdAt;
     private Instant updatedAt;
+    private Integer rating;
+    private Integer ru;
+    private Integer gamesPlayed;
+    private String country;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -42,22 +44,6 @@ public class UserDocument {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -73,4 +59,37 @@ public class UserDocument {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
+    public Integer getRu() {
+        return ru;
+    }
+
+    public void setRu(Integer ru) {
+        this.ru = ru;
+    }
+
+    public Integer getGamesPlayed() {
+        return gamesPlayed;
+    }
+
+    public void setGamesPlayed(Integer gamesPlayed) {
+        this.gamesPlayed = gamesPlayed;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
 }
+

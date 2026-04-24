@@ -80,10 +80,11 @@ public class PlayerNeo4jMigration implements MigrationStep {
     private PlayerNode toNode(PlayerEntity e) {
         var n = new PlayerNode();
         n.setId(e.getId());
-        n.setUsername(e.getUsername());
-        n.setEmail(e.getEmail());
-        n.setPassword(e.getPassword());
-        n.setCreateTime(e.getCreateTime());
+        var user = e.getUser();
+        n.setUsername(user != null ? user.getUsername() : null);
+        n.setEmail(user != null ? user.getEmail() : null);
+        n.setPassword(user != null ? user.getPasswordHash() : null);
+        n.setCreateTime(user != null ? user.getCreatedAt() : null);
         n.setRating(e.getRating());
         n.setRu(e.getRu());
         n.setGamesPlayed(e.getGamesPlayed());

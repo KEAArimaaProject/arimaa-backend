@@ -1,5 +1,6 @@
 package com.example.arimaabackend.model.sql;
 
+import com.example.arimaabackend.enums.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

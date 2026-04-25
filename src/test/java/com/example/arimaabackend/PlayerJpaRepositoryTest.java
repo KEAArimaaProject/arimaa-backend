@@ -43,7 +43,7 @@ class PlayerJpaRepositoryTest {
     }
 
     @Test
-    void shouldFindPlayersByCountryId() {
+    void shouldFindPlayersByCountryName() {
         var countryUs = new CountryEntity();
         countryUs.setId(1);
         countryUs.setName("US");
@@ -68,7 +68,7 @@ class PlayerJpaRepositoryTest {
         player2.setCountry(countryAu);
         playerJpaRepository.save(player2);
 
-        var usPlayers = playerJpaRepository.findByCountry_Id(1);
+        var usPlayers = playerJpaRepository.findByCountryName("US");
 
         assertThat(usPlayers).hasSize(1);
         assertThat(usPlayers.get(0).getUsername()).isEqualTo("Matthias");

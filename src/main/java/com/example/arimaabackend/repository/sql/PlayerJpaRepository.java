@@ -1,5 +1,6 @@
 package com.example.arimaabackend.repository.sql;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,5 +13,6 @@ public interface PlayerJpaRepository extends JpaRepository<PlayerEntity, Integer
 
     Optional<PlayerEntity> findByEmail(String email);
 
-    List<PlayerEntity> findByCountry_Id(Integer countryId);
+    List<PlayerEntity> findByCountryName(String countryName);
+
 }

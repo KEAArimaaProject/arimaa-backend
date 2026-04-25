@@ -6,12 +6,10 @@ Simple Spring Boot backend with:
 
 ## Requirements
 
+- a secrets file (.env), to be placed in the project root. Get it from the team.
 - Java 21
 - Maven
-- Databases running locally (defaults):
-  - MySQL: `localhost:3307`, DB `arimaadockermysqldb`
-  - MongoDB: `localhost:27017`, DB `arimaadockermysqldb`
-  - Neo4j: `localhost:7687`
+- Databases running locally (defaults): see the .env file (not in git)
 
 Connection settings are in `src/main/resources/application.properties`.
 
@@ -38,9 +36,17 @@ Main endpoints:
 From the project root:
 
 ```powershell
-docker compose -f .\Database\docker-compose.mysql.yml up -d
-docker compose -f .\Database\neo4j\docker-compose.neo4j.yml up -d
+docker compose --env-file .env -f .\Database\docker-compose.mysql.yml up -d
+docker compose --env-file .env -f .\Database\neo4j\docker-compose.neo4j.yml up -d
 ```
+
+### 1B) Check that the mysql database is running correctly.
+```powershell
+docker compose --env-file .env -f .\Database\docker-compose.mysql.yml ps
+```
+You should see information about the database.
+
+
 
 ### 2) Apply Neo4j constraints once
 
@@ -88,3 +94,47 @@ If either list is omitted, it defaults to `ALL` for that dimension.
 Use `migration.dry-run=true` to log counts without writing to target stores.
 
 **Dependency order** (enforced by each step’s order value): country → event → game-type → position → puzzle → player → match → move → solution → opening-by-match → opening-by-puzzle → user. If you enable only a subset, ensure upstream nodes already exist in Neo4j.
+
+
+
+### to work with neo4J
+
+RUn the docker compose script  above.
+
+to go http://localhost:7474/ in a  borwser
+
+login with the neo4j password (see the .env file (not in git))
+
+
+Check on the left side in the neo4j browser window, if there is data:
+If you see this:
+"Database information
+Nodes (0)"
+Then you need to run the migration script:
+
+PS C:\Users\CMLyk\IdeaProjects\arimaa-backend> .\mvnw.cmd  spring-boot:run "-Dspring-boot.run.profiles=migration"
+
+--- To delete the database:
+docker compose --env-file .env -f .\Database\neo4j\docker-compose.neo4j.yml down -v
+
+to delete mysql database:
+docker compose --env-file .env -f .\Database\docker-compose.mysql.yml down -v
+
+
+### Run Endpoints in postman:
+- run docker desktop
+
+- remove database: docker compose --env-file .env -f .\Database\docker-compose.mysql.yml down -v
+- add dataabase: docker compose --env-file .env -f .\Database\docker-compose.mysql.yml up -d
+
+the down command might fail by "hanging" on windows. If so, try pressing Ctrl+c and running this:
+docker compose --env-file .env -f .\Database\docker-compose.mysql.yml down -v --remove-orphans
+
+verify MySQL: docker compose --env-file .env -f Database\docker-compose.mysql.yml ps
+
+- start the application: .\mvnw.cmd spring-boot:run
+
+- you can also try this online script:
+docker compose --env-file .env -f .\Database\docker-compose.mysql.yml down -v --remove-orphans; docker compose --env-file .env -f .\Database\docker-compose.mysql.yml up -d ; sleep 20; .\mvnw.cmd spring-boot:run
+
+

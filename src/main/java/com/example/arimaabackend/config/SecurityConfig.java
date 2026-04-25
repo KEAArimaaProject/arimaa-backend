@@ -47,6 +47,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Registration is public
                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                // Player endpoints require authentication
+                .requestMatchers(HttpMethod.GET, "/api/players/**").authenticated()
                 // Admin-only endpoints
                 .requestMatchers(HttpMethod.GET, "/api/users/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")

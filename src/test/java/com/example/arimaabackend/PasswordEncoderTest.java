@@ -11,6 +11,21 @@ class PasswordEncoderTest {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Test
+    void encode_generatesHashForAdminAndUserPasswords() {
+        String adminRawPassword = "adminpassword1";
+        String userRawPassword = "userpassword1";
+
+        String adminHash = passwordEncoder.encode(adminRawPassword);
+        String userHash = passwordEncoder.encode(userRawPassword);
+
+        assertThat(adminHash).startsWith("$2a$");
+        assertThat(userHash).startsWith("$2a$");
+
+        assertThat(passwordEncoder.matches(adminRawPassword, adminHash)).isTrue();
+        assertThat(passwordEncoder.matches(userRawPassword, userHash)).isTrue();
+    }
+
+    @Test
     void encode_producesHashWithBCryptPrefix() {
         String hash = passwordEncoder.encode("secret123");
 

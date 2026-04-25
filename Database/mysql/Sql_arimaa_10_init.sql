@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `arimaadockermysqldb`.`Players` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `username_UNIQUE` (`username`),
   UNIQUE INDEX `email_UNIQUE` (`email`),
-  INDEX `fk_Players_Countries_idx` (`Countries_id` ASC) VISIBLE,
+  INDEX `fk_Players_Countries_idx` (`countries_id` ASC) VISIBLE,
   INDEX `idx_players_rating` (`rating`),
   INDEX `idx_players_ru` (`RU`),
 

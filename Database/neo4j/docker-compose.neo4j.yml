@@ -7,7 +7,7 @@ services:
       - "7474:7474" # Browser / HTTP API
       - "7687:7687" # Bolt
     environment:
-      NEO4J_AUTH: "neo4j/arimaa123"
+      NEO4J_AUTH: ${SPRING_NEO4J_USERNAME}/${SPRING_NEO4J_PASSWORD}
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs

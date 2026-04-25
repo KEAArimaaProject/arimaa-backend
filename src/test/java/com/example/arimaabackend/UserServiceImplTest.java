@@ -1,8 +1,8 @@
 package com.example.arimaabackend;
 
 import com.example.arimaabackend.dto.UserCreateRequest;
+import com.example.arimaabackend.enums.UserRole;
 import com.example.arimaabackend.model.sql.UserEntity;
-import com.example.arimaabackend.model.sql.UserRole;
 import com.example.arimaabackend.repository.sql.UserJpaRepository;
 import com.example.arimaabackend.services.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,9 +1,8 @@
 package com.example.arimaabackend.model.mongo;
 
-import java.time.Instant;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 @Document("players")
 public class PlayerDocument {
@@ -11,10 +10,8 @@ public class PlayerDocument {
     @Id
     private Integer id;
 
-    private String username;
-    private String email;
-    private Instant createdAt;
-    private Instant updatedAt;
+    @DocumentReference
+    private UserDocument user;
     private Integer rating;
     private Integer ru;
     private Integer gamesPlayed;
@@ -28,36 +25,12 @@ public class PlayerDocument {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public UserDocument getUser() {
+        return user;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUser(UserDocument user) {
+        this.user = user;
     }
 
     public Integer getRating() {

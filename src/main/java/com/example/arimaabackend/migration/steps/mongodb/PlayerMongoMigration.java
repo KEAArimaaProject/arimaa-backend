@@ -1,6 +1,5 @@
 package com.example.arimaabackend.migration.steps.mongodb;
 
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +14,9 @@ import com.example.arimaabackend.migration.MigrationContext;
 import com.example.arimaabackend.migration.spi.MigrationStep;
 import com.example.arimaabackend.migration.spi.MigrationTarget;
 import com.example.arimaabackend.model.mongo.PlayerDocument;
+import com.example.arimaabackend.model.mongo.UserDocument;
 import com.example.arimaabackend.model.sql.PlayerEntity;
+import com.example.arimaabackend.model.sql.UserEntity;
 import com.example.arimaabackend.repository.mongo.PlayerMongoRepository;
 import com.example.arimaabackend.repository.sql.PlayerJpaRepository;
 
@@ -63,18 +64,21 @@ public class PlayerMongoMigration implements MigrationStep {
     private PlayerDocument toDocument(PlayerEntity entity) {
         var d = new PlayerDocument();
         d.setId(entity.getId());
-        var user = entity.getUser();
-        d.setUsername(user != null ? user.getUsername() : null);
-        d.setEmail(user != null ? user.getEmail() : null);
-        Instant createdAt = user != null ? user.getCreatedAt() : null;
-        Instant updatedAt = user != null ? user.getUpdatedAt() : null;
-        d.setCreatedAt(createdAt);
-        d.setUpdatedAt(updatedAt != null ? updatedAt : createdAt);
+        d.setUser(userRef(entity.getUser()));
         d.setRating(entity.getRating());
         d.setRu(entity.getRu());
         d.setGamesPlayed(entity.getGamesPlayed());
         d.setCountry(entity.getCountry() != null ? entity.getCountry().getName() : null);
         return d;
+    }
+
+    private UserDocument userRef(UserEntity user) {
+        if (user == null) {
+            return null;
+        }
+        var document = new UserDocument();
+        document.setId(user.getId());
+        return document;
     }
 }
 

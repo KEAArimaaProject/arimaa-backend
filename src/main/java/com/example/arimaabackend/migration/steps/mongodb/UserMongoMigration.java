@@ -59,10 +59,13 @@ public class UserMongoMigration implements MigrationStep {
 
     private UserDocument toDocument(UserEntity entity) {
         var document = new UserDocument();
-        document.setId(String.valueOf(entity.getId()));
-        document.setSqlId(entity.getId());
+        document.setId(entity.getId());
         document.setUsername(entity.getUsername());
         document.setEmail(entity.getEmail());
+        document.setPasswordHash(entity.getPasswordHash());
+        document.setRole(entity.getRole() != null ? entity.getRole().name() : null);
+        document.setCreatedAt(entity.getCreatedAt());
+        document.setUpdatedAt(entity.getUpdatedAt());
         return document;
     }
 }

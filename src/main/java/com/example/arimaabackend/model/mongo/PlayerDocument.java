@@ -1,24 +1,21 @@
-package com.example.arimaabackend.model.neo4j;
+package com.example.arimaabackend.model.mongo;
 
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-@Node("Player")
-public class PlayerNode {
+@Document("players")
+public class PlayerDocument {
 
     @Id
     private Integer id;
 
+    @DocumentReference
+    private UserDocument user;
     private Integer rating;
     private Integer ru;
     private Integer gamesPlayed;
-
-    @Relationship(type = "HAS_USER")
-    private UserNode user;
-
-    @Relationship(type = "IN_COUNTRY")
-    private CountryNode country;
+    private String country;
 
     public Integer getId() {
         return id;
@@ -26,6 +23,14 @@ public class PlayerNode {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public UserDocument getUser() {
+        return user;
+    }
+
+    public void setUser(UserDocument user) {
+        this.user = user;
     }
 
     public Integer getRating() {
@@ -52,19 +57,11 @@ public class PlayerNode {
         this.gamesPlayed = gamesPlayed;
     }
 
-    public UserNode getUser() {
-        return user;
-    }
-
-    public void setUser(UserNode user) {
-        this.user = user;
-    }
-
-    public CountryNode getCountry() {
+    public String getCountry() {
         return country;
     }
 
-    public void setCountry(CountryNode country) {
+    public void setCountry(String country) {
         this.country = country;
     }
 }

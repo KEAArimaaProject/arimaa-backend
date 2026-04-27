@@ -73,6 +73,28 @@ public class GetPlayerTest {
     }
 
     @Test
+    void shouldGetPlayersByUsername() {
+        APIResponse response = request.get("/api/players/by-username/bot_ShallowBlue");
+        assertTrue(response.ok(), "Expected 2xx status. Got: " + response.status());
+        assertEquals(200, response.status());
+        String jsonString = response.text();
+
+        JsonNode json;
+        try {
+            json = objectMapper.readTree(jsonString);
+        } catch (JsonProcessingException e) {
+            fail("Invalid JSON response: " + e.getMessage());
+            return;
+        }
+        assertEquals(371, json.get("id").asInt());
+        assertEquals("bot_ShallowBlue", json.get("username").asText());
+        assertEquals("bot_ShallowBlue@unknown.invalid", json.get("email").asText());
+
+        assertNull(json.get("createdAt"));
+        assertNull(json.get("updatedAt"));
+    }
+
+    @Test
     void shouldGetUsersByCountry() {
         APIResponse response = request.get("api/players/by-country/US");
         assertTrue(response.ok(), "Expected list of player users. Got: " + response.status());

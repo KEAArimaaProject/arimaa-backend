@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.arimaabackend.model.sql.PlayerEntity;
 
 public interface PlayerJpaRepository extends JpaRepository<PlayerEntity, Integer> {
+    Optional<PlayerEntity> findByUser_Id(Long id);
+
     Optional<PlayerEntity> findByUser_Username(String username);
 
     Optional<PlayerEntity> findByUser_Email(String email);

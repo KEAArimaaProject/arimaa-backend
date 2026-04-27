@@ -137,4 +137,16 @@ verify MySQL: docker compose --env-file .env -f Database\docker-compose.mysql.ym
 - you can also try this online script:
 docker compose --env-file .env -f .\Database\docker-compose.mysql.yml down -v --remove-orphans; docker compose --env-file .env -f .\Database\docker-compose.mysql.yml up -d ; sleep 20; .\mvnw.cmd spring-boot:run
 
+### Open the database in datagrip:
+- Open docker desktop.
+- Make sure the database is running (use the guides above), then verify with
+  docker compose --env-file .env -f .\Database\docker-compose.mysql.yml ps
+
+Host: localhost
+Port: 5000
+Database: arimaadockermysqldb
+User: root
+Password: <MYSQL_ROOT_PASSWORD from .env>
+JDBC URL: jdbc:mysql://localhost:5000/arimaadockermysqldb?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+
 

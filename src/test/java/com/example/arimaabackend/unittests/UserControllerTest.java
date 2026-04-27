@@ -1,4 +1,4 @@
-package com.example.arimaabackend;
+package com.example.arimaabackend.unittests;
 
 import com.example.arimaabackend.dto.UserCreateRequest;
 import com.example.arimaabackend.dto.UserResponse;

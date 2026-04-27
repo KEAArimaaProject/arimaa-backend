@@ -1,9 +1,13 @@
-package com.example.arimaabackend;
+package com.example.arimaabackend.unittests;
 
 import com.example.arimaabackend.dto.PlayerResponse;
 import com.example.arimaabackend.model.sql.CountryEntity;
 import com.example.arimaabackend.model.sql.PlayerEntity;
 import com.example.arimaabackend.repository.sql.PlayerJpaRepository;
+import com.example.arimaabackend.repository.sql.UserJpaRepository;
+import com.example.arimaabackend.model.sql.UserEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import static org.springframework.test.util.ReflectionTestUtils.setField;
 import com.example.arimaabackend.services.PlayerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,10 +31,18 @@ class PlayerServiceTest {
     @Mock
     private PlayerJpaRepository playerJpaRepository;
 
+    @Mock
+    private UserJpaRepository userJpaRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private PlayerServiceImpl playerService;
 
     private CountryEntity country;
+    private UserEntity user1;
+    private UserEntity user2;
     private PlayerEntity player1;
     private PlayerEntity player2;
 
@@ -40,26 +52,30 @@ class PlayerServiceTest {
         country.setId(1);
         country.setName("US");
 
+        user1 = new UserEntity();
+        user1.setUsername("alice");
+        user1.setEmail("alice@example.com");
+        setField(user1, "id", 1L);
+
         player1 = new PlayerEntity();
         player1.setId(1);
-        player1.setUsername("alice");
-        player1.setEmail("alice@example.com");
-        player1.setPassword("secret");
+        player1.setUser(user1);
         player1.setRating(1500);
         player1.setRu(100);
         player1.setGamesPlayed(10);
-        player1.setCreateTime(Instant.parse("2024-01-01T00:00:00Z"));
         player1.setCountry(country);
+
+        user2 = new UserEntity();
+        user2.setUsername("bob");
+        user2.setEmail("bob@example.com");
+        setField(user2, "id", 2L);
 
         player2 = new PlayerEntity();
         player2.setId(2);
-        player2.setUsername("bob");
-        player2.setEmail("bob@example.com");
-        player2.setPassword("secret");
+        player2.setUser(user2);
         player2.setRating(1200);
         player2.setRu(50);
         player2.setGamesPlayed(5);
-        player2.setCreateTime(Instant.parse("2024-02-01T00:00:00Z"));
         player2.setCountry(country);
     }
 
@@ -67,7 +83,8 @@ class PlayerServiceTest {
 
     @Test
     void getByUsername_found_returnsMatchingPlayer() {
-        when(playerJpaRepository.findByUsername("alice")).thenReturn(Optional.of(player1));
+        when(userJpaRepository.findByUsername("alice")).thenReturn(Optional.of(user1));
+        when(playerJpaRepository.findByUser_Id(1L)).thenReturn(Optional.of(player1));
 
         PlayerResponse response = playerService.getByUsername("alice");
 
@@ -79,7 +96,7 @@ class PlayerServiceTest {
 
     @Test
     void getByUsername_notFound_throws404() {
-        when(playerJpaRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+        when(userJpaRepository.findByUsername("unknown")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> playerService.getByUsername("unknown"))
                 .isInstanceOf(ResponseStatusException.class)

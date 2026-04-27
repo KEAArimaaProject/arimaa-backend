@@ -1,4 +1,4 @@
-package com.example.arimaabackend;
+package com.example.arimaabackend.unittests;
 
 import com.example.arimaabackend.model.sql.CountryEntity;
 import com.example.arimaabackend.repository.sql.CountryJpaRepository;

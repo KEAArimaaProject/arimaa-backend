@@ -3,6 +3,7 @@ package com.example.arimaabackend;
 import com.example.arimaabackend.dto.PlayerResponse;
 import com.example.arimaabackend.model.sql.CountryEntity;
 import com.example.arimaabackend.model.sql.PlayerEntity;
+import com.example.arimaabackend.model.sql.UserEntity;
 import com.example.arimaabackend.repository.sql.PlayerJpaRepository;
 import com.example.arimaabackend.services.PlayerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,8 @@ class PlayerServiceTest {
     private CountryEntity country;
     private PlayerEntity player1;
     private PlayerEntity player2;
+    private UserEntity user1;
+    private UserEntity user2;
 
     @BeforeEach
     void setUp() {
@@ -42,32 +45,48 @@ class PlayerServiceTest {
 
         player1 = new PlayerEntity();
         player1.setId(1);
-        player1.setUsername("alice");
-        player1.setEmail("alice@example.com");
-        player1.setPassword("secret");
         player1.setRating(1500);
         player1.setRu(100);
         player1.setGamesPlayed(10);
-        player1.setCreateTime(Instant.parse("2024-01-01T00:00:00Z"));
         player1.setCountry(country);
+        user1 = new UserEntity();
+        user1.setUsername("alice");
+        user1.setEmail("alice@example.com");
+        user1.setPasswordHash("secret");
+        try {
+            var createdAt = UserEntity.class.getDeclaredField("createdAt");
+            createdAt.setAccessible(true);
+            createdAt.set(user1, Instant.parse("2024-01-01T00:00:00Z"));
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+        player1.setUser(user1);
 
         player2 = new PlayerEntity();
         player2.setId(2);
-        player2.setUsername("bob");
-        player2.setEmail("bob@example.com");
-        player2.setPassword("secret");
         player2.setRating(1200);
         player2.setRu(50);
         player2.setGamesPlayed(5);
-        player2.setCreateTime(Instant.parse("2024-02-01T00:00:00Z"));
         player2.setCountry(country);
+        user2 = new UserEntity();
+        user2.setUsername("bob");
+        user2.setEmail("bob@example.com");
+        user2.setPasswordHash("secret");
+        try {
+            var createdAt = UserEntity.class.getDeclaredField("createdAt");
+            createdAt.setAccessible(true);
+            createdAt.set(user2, Instant.parse("2024-02-01T00:00:00Z"));
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+        player2.setUser(user2);
     }
 
     // --- getByUsername ---
 
     @Test
     void getByUsername_found_returnsMatchingPlayer() {
-        when(playerJpaRepository.findByUsername("alice")).thenReturn(Optional.of(player1));
+        when(playerJpaRepository.findByUser_Username("alice")).thenReturn(Optional.of(player1));
 
         PlayerResponse response = playerService.getByUsername("alice");
 
@@ -79,7 +98,7 @@ class PlayerServiceTest {
 
     @Test
     void getByUsername_notFound_throws404() {
-        when(playerJpaRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+        when(playerJpaRepository.findByUser_Username("unknown")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> playerService.getByUsername("unknown"))
                 .isInstanceOf(ResponseStatusException.class)

@@ -1,4 +1,4 @@
-package com.example.arimaabackend;
+package com.example.arimaabackend.unittests;
 
 import com.example.arimaabackend.enums.UserRole;
 import com.example.arimaabackend.model.sql.UserEntity;

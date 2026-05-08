@@ -1,15 +1,12 @@
-package com.example.arimaabackend;
+package com.example.arimaabackend.unittests;
 
-import com.example.arimaabackend.model.sql.CountryEntity;
-import com.example.arimaabackend.model.sql.EventEntity;
-import com.example.arimaabackend.model.sql.GameTypeEntity;
-import com.example.arimaabackend.model.sql.MatchEntity;
-import com.example.arimaabackend.model.sql.PlayerEntity;
+import com.example.arimaabackend.model.sql.*;
 import com.example.arimaabackend.repository.sql.CountryJpaRepository;
 import com.example.arimaabackend.repository.sql.EventJpaRepository;
 import com.example.arimaabackend.repository.sql.GameTypeJpaRepository;
 import com.example.arimaabackend.repository.sql.MatchJpaRepository;
 import com.example.arimaabackend.repository.sql.PlayerJpaRepository;
+import com.example.arimaabackend.repository.sql.UserJpaRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -34,6 +31,9 @@ class MatchJpaRepositoryTest {
     @Autowired
     private GameTypeJpaRepository gameTypeJpaRepository;
 
+    @Autowired
+    private UserJpaRepository userJpaRepository;
+
     @Test
     void shouldSaveAndLoadMatchAndFindByPlayerIds() {
         var countryUs = new CountryEntity();
@@ -46,18 +46,28 @@ class MatchJpaRepositoryTest {
         countryAu.setName("AU");
         countryJpaRepository.save(countryAu);
 
+        var silverUser = new UserEntity();
+        silverUser.setUsername("Matthias");
+        silverUser.setEmail("matthias@example.com");
+        silverUser.setPasswordHash("password");
+
         var silver = new PlayerEntity();
         silver.setId(4803);
-        silver.setUsername("Matthias");
-        silver.setPassword("secret");
+        silver.setUser(silverUser);
         silver.setCountry(countryUs);
+        userJpaRepository.save(silverUser);
         playerJpaRepository.save(silver);
+
+        var goldUser = new UserEntity();
+        goldUser.setUsername("bot_GnoBot2006P1");
+        goldUser.setEmail("bot@example.com");
+        goldUser.setPasswordHash("password");
 
         var gold = new PlayerEntity();
         gold.setId(4613);
-        gold.setUsername("bot_GnoBot2006P1");
-        gold.setPassword("secret");
+        gold.setUser(goldUser);
         gold.setCountry(countryAu);
+        userJpaRepository.save(goldUser);
         playerJpaRepository.save(gold);
 
         var event = new EventEntity();
@@ -89,8 +99,8 @@ class MatchJpaRepositoryTest {
         var loaded = matchJpaRepository.findById(27557);
 
         assertThat(loaded).isPresent();
-        assertThat(loaded.get().getSilverPlayer().getUsername()).isEqualTo("Matthias");
-        assertThat(loaded.get().getGoldPlayer().getUsername()).isEqualTo("bot_GnoBot2006P1");
+        assertThat(loaded.get().getSilverPlayer().getUser().getUsername()).isEqualTo("Matthias");
+        assertThat(loaded.get().getGoldPlayer().getUser().getUsername()).isEqualTo("bot_GnoBot2006P1");
 
         var bySilver = matchJpaRepository.findBySilverPlayer_Id(4803);
         var byGold = matchJpaRepository.findByGoldPlayer_Id(4613);

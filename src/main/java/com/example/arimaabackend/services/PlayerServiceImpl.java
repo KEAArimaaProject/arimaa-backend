@@ -23,7 +23,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     @Transactional(readOnly = true)
     public PlayerResponse getByUsername(String username) {
-        return playerJpaRepository.findByUser_Username(username)
+        return playerJpaRepository.findByUsername(username)
                 .map(PlayerServiceImpl::toResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player '%s' not found".formatted(username)));
     }
@@ -53,15 +53,14 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     private static PlayerResponse toResponse(PlayerEntity entity) {
-        var user = entity.getUser();
         return new PlayerResponse(
                 entity.getId(),
-                user != null ? user.getUsername() : null,
-                user != null ? user.getEmail() : null,
+                entity.getUsername(),
+                entity.getEmail(),
                 entity.getRating(),
                 entity.getRu(),
                 entity.getGamesPlayed(),
-                user != null ? user.getCreatedAt() : null,
+                entity.getCreateTime(),
                 entity.getCountry() != null ? entity.getCountry().getId() : null
         );
     }

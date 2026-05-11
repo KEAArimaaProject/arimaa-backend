@@ -1,13 +1,15 @@
 package com.example.arimaabackend.services;
 
+import com.example.arimaabackend.dto.PlayerCreateRequest;
 import com.example.arimaabackend.dto.PlayerResponse;
-import com.example.arimaabackend.dto.UserResponse;
+import com.example.arimaabackend.model.sql.CountryEntity;
 import com.example.arimaabackend.model.sql.PlayerEntity;
 import com.example.arimaabackend.model.sql.UserEntity;
+import com.example.arimaabackend.repository.sql.CountryJpaRepository;
+import com.example.arimaabackend.repository.sql.MatchJpaRepository;
 import com.example.arimaabackend.repository.sql.PlayerJpaRepository;
 import com.example.arimaabackend.repository.sql.UserJpaRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,14 +22,40 @@ public class PlayerServiceImpl implements PlayerService {
 
     private final PlayerJpaRepository playerJpaRepository;
     private final UserJpaRepository userJpaRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final CountryJpaRepository countryJpaRepository;
+    private final MatchJpaRepository matchJpaRepository;
 
     public PlayerServiceImpl(PlayerJpaRepository playerJpaRepository,
                              UserJpaRepository userJpaRepository,
-                             PasswordEncoder passwordEncoder) {
+                             CountryJpaRepository countryJpaRepository,
+                             MatchJpaRepository matchJpaRepository) {
         this.playerJpaRepository = playerJpaRepository;
         this.userJpaRepository = userJpaRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.countryJpaRepository = countryJpaRepository;
+        this.matchJpaRepository = matchJpaRepository;
+    }
+
+    @Override
+    public PlayerResponse create(PlayerCreateRequest request) {
+        UserEntity user = userJpaRepository.findById(request.userId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User %d not found".formatted(request.userId())));
+
+        if (playerJpaRepository.findByUser_Id(user.getId()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Player for user %d already exists".formatted(user.getId()));
+        }
+
+        CountryEntity country = countryJpaRepository.findById(request.countryId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country %d not found".formatted(request.countryId())));
+
+        PlayerEntity entity = new PlayerEntity();
+        entity.setUser(user);
+        entity.setCountry(country);
+        entity.setRating(request.rating() != null ? request.rating() : 1200);
+        entity.setRu(request.ru() != null ? request.ru() : 0);
+        entity.setGamesPlayed(request.gamesPlayed() != null ? request.gamesPlayed() : 0);
+        entity.setId(user.getId().intValue());
+        entity = playerJpaRepository.save(entity);
+        return toResponse(entity);
     }
 
     @Override
@@ -76,6 +104,22 @@ public class PlayerServiceImpl implements PlayerService {
         return playerJpaRepository.findByCountryName(countryName).stream()
                 .map(PlayerServiceImpl::toResponse)
                 .toList();
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        if (!playerJpaRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Player %d not found".formatted(id));
+        }
+
+        boolean hasMatches = !matchJpaRepository.findByGoldPlayer_Id(id).isEmpty() ||
+                             !matchJpaRepository.findBySilverPlayer_Id(id).isEmpty();
+        
+        if (hasMatches) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete player with matches");
+        }
+
+        playerJpaRepository.deleteById(id);
     }
 
     private static PlayerResponse toResponse(PlayerEntity entity) {

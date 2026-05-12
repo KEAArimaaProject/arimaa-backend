@@ -1,8 +1,11 @@
 package com.example.arimaabackend.unittests;
 
+import com.example.arimaabackend.dto.PlayerCreateRequest;
 import com.example.arimaabackend.dto.PlayerResponse;
 import com.example.arimaabackend.model.sql.CountryEntity;
 import com.example.arimaabackend.model.sql.PlayerEntity;
+import com.example.arimaabackend.repository.sql.CountryJpaRepository;
+import com.example.arimaabackend.repository.sql.MatchJpaRepository;
 import com.example.arimaabackend.repository.sql.PlayerJpaRepository;
 import com.example.arimaabackend.repository.sql.UserJpaRepository;
 import com.example.arimaabackend.model.sql.UserEntity;
@@ -17,13 +20,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerServiceTest {
@@ -33,6 +38,12 @@ class PlayerServiceTest {
 
     @Mock
     private UserJpaRepository userJpaRepository;
+
+    @Mock
+    private CountryJpaRepository countryJpaRepository;
+
+    @Mock
+    private MatchJpaRepository matchJpaRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -165,5 +176,93 @@ class PlayerServiceTest {
         List<PlayerResponse> responses = playerService.getAll();
 
         assertThat(responses).isEmpty();
+    }
+
+    // --- deleteById ---
+
+    @Test
+    void deleteById_found_deletesPlayer() {
+        when(playerJpaRepository.existsById(1)).thenReturn(true);
+        when(matchJpaRepository.findByGoldPlayer_Id(1)).thenReturn(List.of());
+        when(matchJpaRepository.findBySilverPlayer_Id(1)).thenReturn(List.of());
+
+        playerService.deleteById(1);
+
+        verify(playerJpaRepository).deleteById(1);
+    }
+
+    @Test
+    void deleteById_hasMatches_throws400() {
+        when(playerJpaRepository.existsById(1)).thenReturn(true);
+        when(matchJpaRepository.findByGoldPlayer_Id(1)).thenReturn(List.of(new com.example.arimaabackend.model.sql.MatchEntity()));
+
+        assertThatThrownBy(() -> playerService.deleteById(1))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Cannot delete player with matches");
+
+        verify(playerJpaRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void deleteById_notFound_throws404() {
+        when(playerJpaRepository.existsById(99)).thenReturn(false);
+
+        assertThatThrownBy(() -> playerService.deleteById(99))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("99");
+
+        verify(playerJpaRepository, never()).deleteById(any());
+    }
+
+    // --- create ---
+
+    @Test
+    void create_validRequest_createsPlayer() {
+        PlayerCreateRequest request = new PlayerCreateRequest(2L, 1600, 150, 20, 1);
+        
+        when(userJpaRepository.findById(2L)).thenReturn(Optional.of(user2));
+        when(playerJpaRepository.findByUser_Id(2L)).thenReturn(Optional.empty());
+        when(countryJpaRepository.findById(1)).thenReturn(Optional.of(country));
+        when(playerJpaRepository.save(any(PlayerEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PlayerResponse response = playerService.create(request);
+
+        assertThat(response.username()).isEqualTo("bob");
+        assertThat(response.rating()).isEqualTo(1600);
+        assertThat(response.countryId()).isEqualTo(1);
+        verify(playerJpaRepository).save(any(PlayerEntity.class));
+    }
+
+    @Test
+    void create_userNotFound_throws404() {
+        PlayerCreateRequest request = new PlayerCreateRequest(99L, 1200, 0, 0, 1);
+        when(userJpaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> playerService.create(request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("User 99 not found");
+    }
+
+    @Test
+    void create_playerAlreadyExists_throws409() {
+        PlayerCreateRequest request = new PlayerCreateRequest(1L, 1200, 0, 0, 1);
+        when(userJpaRepository.findById(1L)).thenReturn(Optional.of(user1));
+        when(playerJpaRepository.findByUser_Id(1L)).thenReturn(Optional.of(player1));
+
+        assertThatThrownBy(() -> playerService.create(request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("already exists");
+    }
+
+    @Test
+    void create_countryNotFound_throws404() {
+        PlayerCreateRequest request = new PlayerCreateRequest(2L, 1200, 0, 0, 99);
+        when(userJpaRepository.findById(2L)).thenReturn(Optional.of(user2));
+        when(playerJpaRepository.findByUser_Id(2L)).thenReturn(Optional.empty());
+        when(countryJpaRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> playerService.create(request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Country 99 not found");
     }
 }

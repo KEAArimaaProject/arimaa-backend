@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.arimaabackend.dto.UserCreateRequest;
 import com.example.arimaabackend.dto.UserResponse;
+import com.example.arimaabackend.dto.UserUpdateRequest;
 import com.example.arimaabackend.model.sql.UserEntity;
 import com.example.arimaabackend.repository.sql.UserJpaRepository;
 
@@ -39,6 +40,21 @@ public class UserServiceImpl implements UserService {
         return userJpaRepository.findById(id)
                 .map(UserServiceImpl::toResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User %d not found".formatted(id)));
+    }
+
+    @Override
+    public UserResponse update(Long id, UserUpdateRequest request) {
+        UserEntity entity = userJpaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User %d not found".formatted(id)));
+
+        entity.setUsername(request.username());
+        entity.setEmail(request.email());
+        if (request.password() != null && !request.password().isBlank()) {
+            entity.setPasswordHash(passwordEncoder.encode(request.password()));
+        }
+
+        entity = userJpaRepository.save(entity);
+        return toResponse(entity);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.example.arimaabackend.playwright;
 
 import com.example.arimaabackend.dto.UserCreateRequest;
+import com.example.arimaabackend.dto.UserResponse;
+import com.example.arimaabackend.dto.UserUpdateRequest;
 import com.microsoft.playwright.options.RequestOptions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -158,6 +160,61 @@ class UserTest {
         APIResponse response = adminRequest.get("/api/users/43543637");
         assertFalse(response.ok(), "Expected 4xx status. Got: " + response.status());
         assertEquals(404, response.status());
+    }
+
+    @Test
+    void AsAdmin_UpdateUser() throws JsonProcessingException {
+        // Create user (to update later)
+        String uniqueSuffix = String.valueOf(System.currentTimeMillis());
+        UserCreateRequest createUser = new UserCreateRequest(
+                "update_me_" + uniqueSuffix,
+                "update_me_" + uniqueSuffix + "@example.com",
+                "password123");
+        APIResponse createResponse = adminRequest.post("/api/users", RequestOptions.create().setData(createUser));
+        assertEquals(201, createResponse.status());
+        JsonNode json = objectMapper.readTree(createResponse.text());
+        Integer userId = json.get("id").asInt();
+
+        // Update user
+        UserUpdateRequest updateRequest = new UserUpdateRequest(
+                "updated_" + uniqueSuffix,
+                "updated_" + uniqueSuffix + "@example.com",
+                "new_password123");
+
+        APIResponse updateResponse = adminRequest.put("/api/users/" + userId, RequestOptions.create().setData(updateRequest));
+        assertEquals(200, updateResponse.status());
+        JsonNode updatedJson = objectMapper.readTree(updateResponse.text());
+        Integer newUserID = updatedJson.get("id").asInt();
+        assertEquals("updated_" + uniqueSuffix, updatedJson.get("username").asText());
+        assertEquals("updated_" + uniqueSuffix + "@example.com", updatedJson.get("email").asText());
+
+        // get user by newUserId
+        APIResponse getNewUserResponse = adminRequest.get("/api/users/" + newUserID);
+        assertTrue(getNewUserResponse.ok(), "Expected 2xx status. Got: " + getNewUserResponse.status());
+        assertEquals(200, getNewUserResponse.status());
+
+        // delete the user
+        APIResponse responseDelete = adminRequest.delete("/api/users/" + newUserID);
+        assertTrue(responseDelete.ok(), "Expected 2xx status. Got: " + responseDelete.status());
+        assertEquals(204, responseDelete.status());
+
+        // try to find the deleted user again
+        APIResponse responseget18deleted = adminRequest.get("/api/users/" + newUserID);
+        assertEquals(404, responseget18deleted.status(),
+                "Expected 404 Not Found after user deletion, but got: " + responseget18deleted.status());
+    }
+
+    @Test
+    void AsUser_FailToUpdateUser() {
+        // Try to update username, email and password of user 1
+        UserUpdateRequest updateRequest = new UserUpdateRequest(
+                "hacker",
+                "hacker@example.com",
+                "hacked123");
+
+        APIResponse updateResponse = userRequest.put("/api/users/1", RequestOptions.create().setData(updateRequest));
+        // The users attempt to update the user should fail with a 403 Forbidden
+        assertEquals(403, updateResponse.status());
     }
 
     private void assertValidDate(String dateString) {

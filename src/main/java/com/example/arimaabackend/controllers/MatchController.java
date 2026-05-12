@@ -31,6 +31,12 @@ public class MatchController {
         return matchService.createMatch(matchData);
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public MatchResponse updateMatch(@PathVariable Integer id, @RequestBody String matchData) {
+        return matchService.updateMatch(id, matchData);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")

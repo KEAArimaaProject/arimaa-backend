@@ -2,6 +2,7 @@ package com.example.arimaabackend.services;
 
 import com.example.arimaabackend.dto.PlayerCreateRequest;
 import com.example.arimaabackend.dto.PlayerResponse;
+import com.example.arimaabackend.dto.PlayerUpdateRequest;
 import com.example.arimaabackend.model.sql.CountryEntity;
 import com.example.arimaabackend.model.sql.PlayerEntity;
 import com.example.arimaabackend.model.sql.UserEntity;
@@ -10,6 +11,7 @@ import com.example.arimaabackend.repository.sql.MatchJpaRepository;
 import com.example.arimaabackend.repository.sql.PlayerJpaRepository;
 import com.example.arimaabackend.repository.sql.UserJpaRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,15 +26,18 @@ public class PlayerServiceImpl implements PlayerService {
     private final UserJpaRepository userJpaRepository;
     private final CountryJpaRepository countryJpaRepository;
     private final MatchJpaRepository matchJpaRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public PlayerServiceImpl(PlayerJpaRepository playerJpaRepository,
                              UserJpaRepository userJpaRepository,
                              CountryJpaRepository countryJpaRepository,
-                             MatchJpaRepository matchJpaRepository) {
+                             MatchJpaRepository matchJpaRepository,
+                             PasswordEncoder passwordEncoder) {
         this.playerJpaRepository = playerJpaRepository;
         this.userJpaRepository = userJpaRepository;
         this.countryJpaRepository = countryJpaRepository;
         this.matchJpaRepository = matchJpaRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -54,6 +59,33 @@ public class PlayerServiceImpl implements PlayerService {
         entity.setRu(request.ru() != null ? request.ru() : 0);
         entity.setGamesPlayed(request.gamesPlayed() != null ? request.gamesPlayed() : 0);
         entity.setId(user.getId().intValue());
+        entity = playerJpaRepository.save(entity);
+        return toResponse(entity);
+    }
+
+    @Override
+    public PlayerResponse update(Integer id, PlayerUpdateRequest request) {
+        PlayerEntity entity = playerJpaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player %d not found".formatted(id)));
+
+        CountryEntity country = countryJpaRepository.findById(request.countryId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country %d not found".formatted(request.countryId())));
+
+        entity.setRating(request.rating());
+        entity.setRu(request.ru());
+        entity.setGamesPlayed(request.gamesPlayed());
+        entity.setCountry(country);
+
+        if (request.userUpdate() != null) {
+            UserEntity user = entity.getUser();
+            user.setUsername(request.userUpdate().username());
+            user.setEmail(request.userUpdate().email());
+            if (request.userUpdate().password() != null && !request.userUpdate().password().isBlank()) {
+                user.setPasswordHash(passwordEncoder.encode(request.userUpdate().password()));
+            }
+            userJpaRepository.save(user);
+        }
+
         entity = playerJpaRepository.save(entity);
         return toResponse(entity);
     }

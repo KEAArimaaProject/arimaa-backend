@@ -50,12 +50,37 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional
     public MatchResponse createMatch(String matchData) {
+        String[] parts = splitAndValidateMatchData(matchData);
+        Integer id = Integer.parseInt(parts[0]);
+
+        MatchEntity match = new MatchEntity();
+        match.setId(id);
+        populateMatchFromParts(match, parts);
+
+        return toMatchResponse(matchRepository.save(match));
+    }
+
+    @Override
+    @Transactional
+    public MatchResponse updateMatch(Integer id, String matchData) {
+        MatchEntity match = matchRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Match not found"));
+
+        String[] parts = splitAndValidateMatchData(matchData);
+        populateMatchFromParts(match, parts);
+
+        return toMatchResponse(matchRepository.save(match));
+    }
+
+    private String[] splitAndValidateMatchData(String matchData) {
         String[] parts = matchData.split("\t");
         if (parts.length < 23) {
             throw new IllegalArgumentException("Invalid match data format");
         }
+        return parts;
+    }
 
-        Integer id = Integer.parseInt(parts[0]);
+    private void populateMatchFromParts(MatchEntity match, String[] parts) {
         Integer wPlayerId = Integer.parseInt(parts[1]);
         Integer bPlayerId = Integer.parseInt(parts[2]);
         String wUsername = parts[3];
@@ -75,8 +100,6 @@ public class MatchServiceImpl implements MatchService {
         EventEntity event = getOrCreateEvent(eventName);
         GameTypeEntity gameType = getOrCreateGameType(timeControl);
 
-        MatchEntity match = new MatchEntity();
-        match.setId(id);
         match.setGoldPlayer(goldPlayer);
         match.setSilverPlayer(silverPlayer);
         match.setEvent(event);
@@ -84,8 +107,6 @@ public class MatchServiceImpl implements MatchService {
         match.setTimestamp(Instant.ofEpochSecond(startTs));
         match.setMatchResult(result);
         match.setTerminationType(termination);
-
-        return toMatchResponse(matchRepository.save(match));
     }
 
     private MatchResponse toMatchResponse(MatchEntity match) {

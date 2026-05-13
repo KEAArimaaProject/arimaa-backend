@@ -1,7 +1,9 @@
 package com.example.arimaabackend.playwright;
 
 import com.example.arimaabackend.dto.PlayerCreateRequest;
+import com.example.arimaabackend.dto.PlayerUpdateRequest;
 import com.example.arimaabackend.dto.UserCreateRequest;
+import com.example.arimaabackend.dto.UserUpdateRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -88,7 +90,7 @@ class PlayerTest {
         long userId = userJson.get("id").asLong();
 
         try {
-            // Create a Player, Assuming country 1 exists
+            // Create a Player
             PlayerCreateRequest playerRequestData = new PlayerCreateRequest(userId, 1500, 100, 5, 1);
             APIResponse playerCreateResponse = adminRequest.post("/api/players", RequestOptions.create().setData(playerRequestData));
             assertEquals(201, playerCreateResponse.status(), "Failed to create player: " + playerCreateResponse.text());
@@ -103,6 +105,12 @@ class PlayerTest {
             JsonNode getJson = objectMapper.readTree(getResponse.text());
             assertEquals(playerId, getJson.get("id").asInt());
 
+            // Get the user
+            APIResponse getUserResponse = adminRequest.get("/api/users/" + userId);
+            assertEquals(200, getUserResponse.status());
+            JsonNode getUserJson = objectMapper.readTree(getUserResponse.text());
+            assertEquals(userId, getUserJson.get("id").asInt());
+
             // Delete the Player
             APIResponse deleteResponse = adminRequest.delete("/api/players/" + playerId);
             System.out.println("[DEBUG_LOG] Delete response status: " + deleteResponse.status());
@@ -110,6 +118,10 @@ class PlayerTest {
 
             // Verify Player is gone
             APIResponse getAfterDeleteResponse = adminRequest.get("/api/players/" + playerId);
+            assertEquals(404, getAfterDeleteResponse.status());
+
+            //verify user is gone
+            APIResponse getAfterDeleteUserResponse = adminRequest.get("/api/users/" + userId);
             assertEquals(404, getAfterDeleteResponse.status());
 
         } finally {
@@ -162,5 +174,91 @@ class PlayerTest {
     void deleteById_returns404_whenNotFound() {
         APIResponse response = adminRequest.delete("/api/players/999999");
         assertEquals(404, response.status());
+    }
+
+    @Test
+    void AsAdmin_UpdatePlayer() throws JsonProcessingException {
+        // Create user first (add player later)
+        String testUsername = "player_test_" + System.currentTimeMillis();
+        UserCreateRequest userRequestData = new UserCreateRequest(
+                testUsername,
+                testUsername + "@example.com",
+                "password123"
+        );
+        APIResponse userCreateResponse = adminRequest.post("/api/users", RequestOptions.create().setData(userRequestData));
+        assertEquals(201, userCreateResponse.status());
+        JsonNode userJson = objectMapper.readTree(userCreateResponse.text());
+        long userId = userJson.get("id").asLong();
+
+        try {
+            // Create a Player
+            PlayerCreateRequest playerRequestData = new PlayerCreateRequest(userId, 1500, 100, 5, 1);
+            APIResponse playerCreateResponse = adminRequest.post("/api/players", RequestOptions.create().setData(playerRequestData));
+            assertEquals(201, playerCreateResponse.status(), "Failed to create player: " + playerCreateResponse.text());
+
+            JsonNode playerJson = objectMapper.readTree(playerCreateResponse.text());
+            int playerId = playerJson.get("id").asInt();
+            assertEquals(testUsername, playerJson.get("username").asText());
+
+            // Get the Player
+            APIResponse getResponse = adminRequest.get("/api/players/" + playerId);
+            assertEquals(200, getResponse.status());
+            JsonNode getJson = objectMapper.readTree(getResponse.text());
+            assertEquals(playerId, getJson.get("id").asInt());
+
+            // Get the user
+            APIResponse getUserResponse = adminRequest.get("/api/users/" + userId);
+            assertEquals(200, getUserResponse.status());
+            JsonNode getUserJson = objectMapper.readTree(getUserResponse.text());
+            assertEquals(userId, getUserJson.get("id").asInt());
+
+            // Update player and their user information
+            UserUpdateRequest userUpdate = new UserUpdateRequest(
+                    "updated_player",
+                    "updated_player" + "@example.com",
+                    "new_password123");
+            PlayerUpdateRequest updateRequest = new PlayerUpdateRequest(1500, 10, 5, 2, userUpdate); // Update rating to 1500, country to 2
+
+            APIResponse updateResponse = adminRequest.put("/api/players/" + playerId, RequestOptions.create().setData(updateRequest));
+            assertEquals(200, updateResponse.status());
+            JsonNode updatedJson = objectMapper.readTree(updateResponse.text());
+
+            assertEquals(1500, updatedJson.get("rating").asInt());
+            assertEquals(10, updatedJson.get("ru").asInt());
+            assertEquals(5, updatedJson.get("gamesPlayed").asInt());
+            assertEquals(2, updatedJson.get("countryId").asInt());
+            assertEquals("updated_player", updatedJson.get("username").asText());
+            assertEquals("updated_player" + "@example.com", updatedJson.get("email").asText());
+
+            // Verify user was updated too via GET /api/users/{id}
+            APIResponse updatedUserResponse = adminRequest.get("/api/users/" + userId);
+            assertEquals(200, updatedUserResponse.status());
+            JsonNode updatedUserJson = objectMapper.readTree(updatedUserResponse.text());
+            assertEquals("updated_player", updatedUserJson.get("username").asText());
+            assertEquals("updated_player" + "@example.com", updatedUserJson.get("email").asText());
+
+            // Delete the Player
+            APIResponse deleteResponse = adminRequest.delete("/api/players/" + playerId);
+            System.out.println("[DEBUG_LOG] Delete response status: " + deleteResponse.status());
+            assertEquals(204, deleteResponse.status());
+
+            // Verify Player is gone
+            APIResponse getAfterDeleteResponse = adminRequest.get("/api/players/" + playerId);
+            assertEquals(404, getAfterDeleteResponse.status());
+
+            //verify user is gone
+            APIResponse getAfterDeleteUserResponse = adminRequest.get("/api/users/" + userId);
+            assertEquals(404, getAfterDeleteResponse.status());
+
+        } finally {
+            // Cleanup: delete user (which might also cascade delete player if we didn't do it)
+            adminRequest.delete("/api/users/" + userId);
+        }
+    }
+    @Test
+    void AsUser_FailToUpdatePlayer() {
+        PlayerUpdateRequest updateRequest = new PlayerUpdateRequest(2000, 100, 50, 1, null);
+        APIResponse response = userRequest.put("/api/players/1", RequestOptions.create().setData(updateRequest));
+        assertEquals(403, response.status());
     }
 }

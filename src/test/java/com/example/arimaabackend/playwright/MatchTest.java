@@ -91,6 +91,70 @@ class MatchTest {
     }
 
     @Test
+    void AsAdmin_UpdateMatch() throws JsonProcessingException {
+
+        // Create Match
+        APIResponse createResponse = adminRequest.post("/api/matches", RequestOptions.create().setData(MATCH_DATA));
+        assertEquals(201, createResponse.status(), "Failed to create match. Body: " + createResponse.text());
+
+        // Update Match
+        // Modify the result in MATCH_DATA from "b" to "w" (Gold wins)
+        String updatedData = MATCH_DATA.replace("\tb\tr\t11\tIGS", "\tw\tr\t11\tIGS");
+
+        APIResponse updateResponse = adminRequest.put("/api/matches/" + MATCH_ID, RequestOptions.create().setData(updatedData));
+        assertEquals(200, updateResponse.status(), "Failed to update match. Body: " + updateResponse.text());
+
+        JsonNode matchJson = objectMapper.readTree(updateResponse.text());
+        assertEquals("w", matchJson.get("matchResult").asText());
+
+        try {
+            // Make sure you can get the match with the new value:
+            APIResponse getResponse = adminRequest.get("/api/matches/" + MATCH_ID);
+            Integer getResponseStatus = getResponse.status();
+            String getResponseText = getResponse.text();
+            assertEquals(200, getResponseStatus);
+            JsonNode getJson = objectMapper.readTree(getResponseText);
+            assertEquals("w", getJson.get("matchResult").asText());
+
+            // Delete the Match
+            APIResponse deleteResponse = adminRequest.delete("/api/matches/" + MATCH_ID);
+            assertEquals(204, deleteResponse.status());
+
+            // Verify Match is gone
+            APIResponse getAfterDeleteResponse = adminRequest.get("/api/matches/" + MATCH_ID);
+            assertEquals(404, getAfterDeleteResponse.status());
+        } finally {
+            // Cleanup just in case
+            adminRequest.delete("/api/matches/" + MATCH_ID);
+        }
+    }
+
+
+    @Test
+    void AsUser_UpdateMatch() throws JsonProcessingException {
+        // Create Match (as an admin, to have a match to update)
+        APIResponse createResponse = adminRequest.post("/api/matches", RequestOptions.create().setData(MATCH_DATA));
+        assertEquals(201, createResponse.status(), "Failed to create match. Body: " + createResponse.text());
+
+        // Update Match
+        // Modify the result in MATCH_DATA from "b" to "w" (Gold wins)
+        String updatedData = MATCH_DATA.replace("\tb\tr\t11\tIGS", "\tw\tr\t11\tIGS");
+
+        APIResponse updateResponse = userRequest.put("/api/matches/" + MATCH_ID, RequestOptions.create().setData(updatedData));
+        // The users attempt to update the match should fail with a 403 Forbidden
+        assertEquals(403, updateResponse.status(), "Failed to update match. Body: " + updateResponse.text());
+
+        // Delete the Match
+        APIResponse deleteResponse = adminRequest.delete("/api/matches/" + MATCH_ID);
+        assertEquals(204, deleteResponse.status());
+
+        // Verify Match is gone
+        APIResponse getAfterDeleteResponse = adminRequest.get("/api/matches/" + MATCH_ID);
+        assertEquals(404, getAfterDeleteResponse.status());
+    }
+
+
+    @Test
     void AsAdmin_CreateThenDeleteMatch() throws JsonProcessingException {
 
         // Create Match

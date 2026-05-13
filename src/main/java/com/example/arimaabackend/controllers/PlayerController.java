@@ -2,6 +2,7 @@ package com.example.arimaabackend.controllers;
 
 import com.example.arimaabackend.dto.PlayerCreateRequest;
 import com.example.arimaabackend.dto.PlayerResponse;
+import com.example.arimaabackend.dto.PlayerUpdateRequest;
 import com.example.arimaabackend.services.PlayerService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,6 +34,12 @@ public class PlayerController {
     @PreAuthorize("hasRole('ADMIN')")
     public PlayerResponse create(@Valid @RequestBody PlayerCreateRequest request) {
         return playerService.create(request);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public PlayerResponse update(@PathVariable Integer id, @Valid @RequestBody PlayerUpdateRequest request) {
+        return playerService.update(id, request);
     }
 
     @GetMapping

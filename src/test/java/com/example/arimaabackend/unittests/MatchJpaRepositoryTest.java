@@ -73,9 +73,7 @@ class MatchJpaRepositoryTest {
         var event = new EventEntity();
         event.setId(1);
         event.setName("Casual game");
-        event.setOfficial(false);
         event.setRated(false);
-        event.setRating(0);
         eventJpaRepository.save(event);
 
         var gameType = new GameTypeEntity();

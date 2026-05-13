@@ -76,9 +76,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `arimaadockermysqldb`.`Events` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
-  `isOfficial` TINYINT(1) NOT NULL,
   `isRated` TINYINT(1) NOT NULL,
-  `rating` INT NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 

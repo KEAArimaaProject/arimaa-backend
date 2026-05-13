@@ -219,9 +219,7 @@ public class MatchServiceImpl implements MatchService {
             EventEntity event = new EventEntity();
             event.setId(name.hashCode());
             event.setName(name);
-            event.setOfficial(false);
             event.setRated(true);
-            event.setRating(0);
             return eventRepository.save(event);
         });
     }

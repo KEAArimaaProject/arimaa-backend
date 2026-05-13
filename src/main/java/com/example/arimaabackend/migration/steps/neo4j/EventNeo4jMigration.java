@@ -67,9 +67,7 @@ public class EventNeo4jMigration implements MigrationStep {
         var n = new EventNode();
         n.setId(e.getId());
         n.setName(e.getName());
-        n.setOfficial(e.getOfficial());
         n.setRated(e.getRated());
-        n.setRating(e.getRating());
         return n;
     }
 }

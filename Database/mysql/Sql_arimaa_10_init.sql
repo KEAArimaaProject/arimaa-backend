@@ -104,6 +104,8 @@ CREATE TABLE IF NOT EXISTS `arimaadockermysqldb`.`Matches` (
   `termination_type` VARCHAR(45) NOT NULL,
   `player_id_silver` INT NOT NULL,
   `player_id_gold` INT NOT NULL,
+  `gold_rating` INT NULL,
+  `silver_rating` INT NULL,
   `match_result` VARCHAR(45) NOT NULL,
   `events_id` INT NOT NULL,
   `gameTypes_id` INT NOT NULL,

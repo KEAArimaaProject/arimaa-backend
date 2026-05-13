@@ -102,6 +102,8 @@ public class MatchServiceImpl implements MatchService {
 
         match.setGoldPlayer(goldPlayer);
         match.setSilverPlayer(silverPlayer);
+        match.setGoldRating(wRating);
+        match.setSilverRating(bRating);
         match.setEvent(event);
         match.setGameType(gameType);
         match.setTimestamp(Instant.ofEpochSecond(startTs));
@@ -122,6 +124,8 @@ public class MatchServiceImpl implements MatchService {
             goldPlayer = new PlayerSummary(match.getGoldPlayer().getId(), username);
         }
 
+
+
         EventSummary event = null;
         if (match.getEvent() != null) {
             event = new EventSummary(match.getEvent().getId(), match.getEvent().getName());
@@ -141,6 +145,8 @@ public class MatchServiceImpl implements MatchService {
                 match.getTerminationType(),
                 silverPlayer,
                 goldPlayer,
+                match.getGoldRating(),
+                match.getSilverRating(),
                 match.getMatchResult(),
                 event,
                 gameType,

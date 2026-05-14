@@ -56,9 +56,7 @@ SELECT
     gt.time_reserve,
     e.id AS event_id,
     e.name AS event_name,
-    e.isOfficial,
-    e.isRated,
-    e.rating AS event_rating
+    e.isRated
 FROM Matches m
          JOIN Players silver
               ON m.player_id_silver = silver.id

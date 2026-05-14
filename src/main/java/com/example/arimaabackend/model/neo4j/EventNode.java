@@ -10,9 +10,7 @@ public class EventNode {
     private Integer id;
 
     private String name;
-    private Boolean official;
     private Boolean rated;
-    private Integer rating;
 
     public Integer getId() {
         return id;
@@ -30,28 +28,12 @@ public class EventNode {
         this.name = name;
     }
 
-    public Boolean getOfficial() {
-        return official;
-    }
-
-    public void setOfficial(Boolean official) {
-        this.official = official;
-    }
-
     public Boolean getRated() {
         return rated;
     }
 
     public void setRated(Boolean rated) {
         this.rated = rated;
-    }
-
-    public Integer getRating() {
-        return rating;
-    }
-
-    public void setRating(Integer rating) {
-        this.rating = rating;
     }
 }
 

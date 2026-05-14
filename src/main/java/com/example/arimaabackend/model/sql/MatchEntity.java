@@ -28,6 +28,12 @@ public class MatchEntity {
     @JoinColumn(name = "player_id_gold", nullable = false)
     private PlayerEntity goldPlayer;
 
+    @Column(name = "gold_rating", nullable = true, length = 45)
+    private Integer goldRating;
+
+    @Column(name = "silver_rating", nullable = true, length = 45)
+    private Integer silverRating;
+
     @Column(name = "match_result", nullable = false, length = 45)
     private String matchResult;
 
@@ -72,6 +78,22 @@ public class MatchEntity {
 
     public void setGoldPlayer(PlayerEntity goldPlayer) {
         this.goldPlayer = goldPlayer;
+    }
+
+    public Integer getGoldRating() {
+        return this.goldRating;
+    }
+
+    public void setGoldRating(Integer goldRating) {
+        this.goldRating = goldRating;
+    }
+
+    public Integer getSilverRating() {
+        return this.silverRating;
+    }
+
+    public void setSilverRating(Integer silverRating) {
+        this.silverRating = silverRating;
     }
 
     public String getMatchResult() {

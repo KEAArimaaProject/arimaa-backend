@@ -7,6 +7,8 @@ public record MatchResponse(
     String terminationType,
     PlayerSummary silverPlayer,
     PlayerSummary goldPlayer,
+    Integer goldRating,
+    Integer silverRating,
     String matchResult,
     EventSummary event,
     GameTypeSummary gameType,

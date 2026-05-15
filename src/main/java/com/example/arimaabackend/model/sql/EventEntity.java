@@ -15,14 +15,8 @@ public class EventEntity {
     @Column(nullable = false, length = 45)
     private String name;
 
-    @Column(name = "isOfficial", nullable = false)
-    private Boolean official;
-
     @Column(name = "isRated", nullable = false)
     private Boolean rated;
-
-    @Column(nullable = false)
-    private Integer rating;
 
     public Integer getId() {
         return id;
@@ -40,27 +34,11 @@ public class EventEntity {
         this.name = name;
     }
 
-    public Boolean getOfficial() {
-        return official;
-    }
-
-    public void setOfficial(Boolean official) {
-        this.official = official;
-    }
-
     public Boolean getRated() {
         return rated;
     }
 
     public void setRated(Boolean rated) {
         this.rated = rated;
-    }
-
-    public Integer getRating() {
-        return rating;
-    }
-
-    public void setRating(Integer rating) {
-        this.rating = rating;
     }
 }

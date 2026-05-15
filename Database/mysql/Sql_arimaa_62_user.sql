@@ -76,7 +76,7 @@ COMMIT;
 ALTER TABLE `arimaadockermysqldb`.`Players`
   -- Lock down user_id
   MODIFY COLUMN `user_id` BIGINT NOT NULL,
-  ADD UNIQUE  INDEX `user_id_UNIQUE` (`user_id`),
+  ADD UNIQUE  INDEX `user_id_UNIQUE` (`user_id`), -- this line ensures that the user is indexed so lookup is O(log(n))
   ADD CONSTRAINT `fk_Players_Users`
         FOREIGN KEY (`user_id`)
         REFERENCES `arimaadockermysqldb`.`Users` (`id`)

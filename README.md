@@ -150,3 +150,27 @@ Password: <MYSQL_ROOT_PASSWORD from .env>
 JDBC URL: jdbc:mysql://localhost:5000/arimaadockermysqldb?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
 
 
+### Debug playwright tests
+To debug the playwright tests here:
+src/test/java/com/example/arimaabackend/playwright
+
+make sure that nothing is running on port 8080
+(in the terminal, press ctrl+C to close .\mvnw.cmd spring-boot:run which might be running)
+
+Then go to
+src/main/java/com/example/arimaabackend/ArimaaBackendApplication.java
+and run in debug mode.
+
+you can now debug the playwright tests and hit breakpoints in the services.
+eg.
+src/test/java/com/example/arimaabackend/playwright/MatchTest.java
+void AsUser_UpdateMatch() throws JsonProcessingException {
+
+### Identify issues with dataloading
+first run these:
+- docker compose --env-file .env -f .\Database\docker-compose.mysql.yml down -v --remove-orphans
+- docker compose --env-file .env -f .\Database\docker-compose.mysql.yml up -d      
+
+if they dont raise errors, then run this:
+-  docker compose --env-file .env -f .\Database\docker-compose.mysql.yml logs -f --tail=50   
+

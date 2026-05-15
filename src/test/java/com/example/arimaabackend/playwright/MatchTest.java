@@ -174,8 +174,21 @@ class MatchTest {
             String getResponseText = getResponse.text();
             assertEquals(200, getResponseStatus);
             JsonNode getJson = objectMapper.readTree(getResponseText);
-            String matchIdString =  getJson.get("id").asText();
-            assertEquals(MATCH_ID, matchIdString);
+
+            // verify the match values
+            assertEquals(Integer.parseInt(MATCH_ID), getJson.get("id").asInt());
+            assertEquals("r", getJson.get("terminationType").asText());
+            assertEquals("bot_GnoBot2006P1", getJson.get("silverPlayer").get("username").asText());
+            assertEquals(4803, getJson.get("goldPlayer").get("id").asInt());
+            assertEquals("Matthias", getJson.get("goldPlayer").get("username").asText());
+            assertEquals(1258, getJson.get("goldRating").asInt());
+            assertEquals(1238, getJson.get("silverRating").asInt());
+            assertEquals("b", getJson.get("matchResult").asText());
+            assertEquals("Casual game", getJson.get("event").get("name").asText());
+            assertEquals("2/2/100/10/8", getJson.get("gameType").get("name").asText());
+            assertEquals("null", getJson.get("gameType").get("timeIncrement").asText());
+            assertEquals("null", getJson.get("gameType").get("timeReserve").asText());
+            assertEquals("2006-04-01T05:00:10Z", getJson.get("timestamp").asText());
 
             // Delete the Match
             APIResponse deleteResponse = adminRequest.delete("/api/matches/" + MATCH_ID);

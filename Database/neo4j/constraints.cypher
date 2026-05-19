@@ -12,9 +12,7 @@ CREATE CONSTRAINT puzzle_id IF NOT EXISTS FOR (n:Puzzle) REQUIRE n.id IS UNIQUE;
 CREATE CONSTRAINT solution_id IF NOT EXISTS FOR (n:Solution) REQUIRE n.id IS UNIQUE;
 CREATE CONSTRAINT user_id IF NOT EXISTS FOR (n:User) REQUIRE n.id IS UNIQUE;
 
-// Uniques from SQL schema
-CREATE CONSTRAINT player_username IF NOT EXISTS FOR (n:Player) REQUIRE n.username IS UNIQUE;
-CREATE CONSTRAINT player_email IF NOT EXISTS FOR (n:Player) REQUIRE n.email IS UNIQUE;
+// Uniques from SQL schema (identity lives on User, not Player)
 CREATE CONSTRAINT country_name IF NOT EXISTS FOR (n:Country) REQUIRE n.name IS UNIQUE;
 CREATE CONSTRAINT puzzle_name IF NOT EXISTS FOR (n:Puzzle) REQUIRE n.name IS UNIQUE;
 CREATE CONSTRAINT user_username IF NOT EXISTS FOR (n:User) REQUIRE n.username IS UNIQUE;

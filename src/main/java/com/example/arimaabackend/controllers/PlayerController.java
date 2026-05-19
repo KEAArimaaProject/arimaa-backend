@@ -1,10 +1,7 @@
 package com.example.arimaabackend.controllers;
 
-import com.example.arimaabackend.dto.PlayerCreateRequest;
-import com.example.arimaabackend.dto.PlayerResponse;
-import com.example.arimaabackend.dto.PlayerUpdateRequest;
-import com.example.arimaabackend.services.PlayerService;
-import jakarta.validation.Valid;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,7 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.example.arimaabackend.dto.PlayerCreateRequest;
+import com.example.arimaabackend.dto.PlayerResponse;
+import com.example.arimaabackend.dto.PlayerUpdateRequest;
+import com.example.arimaabackend.services.PlayerService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/players")
@@ -42,7 +44,7 @@ public class PlayerController {
         return playerService.update(id, request);
     }
 
-    @GetMapping
+    @GetMapping()
     public List<PlayerResponse> getAll() {
         return playerService.getAll();
     }

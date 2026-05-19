@@ -93,7 +93,7 @@ Set these keys in `src/main/resources/application-migration.properties` (or pass
 If either list is omitted, it defaults to `ALL` for that dimension.  
 Use `migration.dry-run=true` to log counts without writing to target stores.
 
-**Dependency order** (enforced by each step’s order value): country → event → game-type → position → puzzle → player → match → move → solution → opening-by-match → opening-by-puzzle → user. If you enable only a subset, ensure upstream nodes already exist in Neo4j.
+**Dependency order** (enforced by each step’s order value): country → event → game-type → position → puzzle → user → player → match → move → solution → opening-by-match → opening-by-puzzle. If you enable only a subset, ensure upstream nodes already exist in Neo4j.
 
 
 

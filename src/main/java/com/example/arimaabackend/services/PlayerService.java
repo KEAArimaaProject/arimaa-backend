@@ -1,10 +1,10 @@
 package com.example.arimaabackend.services;
 
+import java.util.List;
+
 import com.example.arimaabackend.dto.PlayerCreateRequest;
 import com.example.arimaabackend.dto.PlayerResponse;
 import com.example.arimaabackend.dto.PlayerUpdateRequest;
-
-import java.util.List;
 
 public interface PlayerService {
     PlayerResponse create(PlayerCreateRequest request);

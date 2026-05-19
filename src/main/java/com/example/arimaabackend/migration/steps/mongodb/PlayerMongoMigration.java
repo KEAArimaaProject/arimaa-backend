@@ -56,7 +56,9 @@ public class PlayerMongoMigration implements MigrationStep {
             log.info("[{}] dry-run: would migrate {} rows", stepName(), playerJpaRepository.count());
             return;
         }
-        List<PlayerDocument> documents = playerJpaRepository.findAll().stream().map(this::toDocument).toList();
+        List<PlayerDocument> documents = playerJpaRepository.findAllWithUserAndCountry().stream()
+                .map(this::toDocument)
+                .toList();
         playerMongoRepository.saveAll(documents);
         log.info("[{}] migrated {} players", stepName(), documents.size());
     }

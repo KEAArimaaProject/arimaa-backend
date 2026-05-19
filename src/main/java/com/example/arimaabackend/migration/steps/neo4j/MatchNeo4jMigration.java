@@ -67,7 +67,7 @@ public class MatchNeo4jMigration implements MigrationStep {
             log.info("[{}] dry-run: would migrate {} rows", stepName(), matchJpaRepository.count());
             return;
         }
-        var entities = matchJpaRepository.findAll();
+        var entities = matchJpaRepository.findAllForMigration();
         var nodes = entities.stream().map(this::toNode).toList();
         List<Map<String, Object>> linkRows = entities.stream().map(this::linkRow).toList();
         neo4jTransactionHelper.write(() -> {
@@ -82,6 +82,8 @@ public class MatchNeo4jMigration implements MigrationStep {
         n.setId(e.getId());
         n.setTerminationType(e.getTerminationType());
         n.setMatchResult(e.getMatchResult());
+        n.setGoldRating(e.getGoldRating());
+        n.setSilverRating(e.getSilverRating());
         n.setTimestamp(e.getTimestamp());
         return n;
     }

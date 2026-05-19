@@ -18,10 +18,8 @@ import com.example.arimaabackend.migration.spi.MigrationStep;
 import com.example.arimaabackend.migration.spi.MigrationTarget;
 import com.example.arimaabackend.model.mongo.PuzzleDocument;
 import com.example.arimaabackend.model.sql.PuzzleEntity;
-import com.example.arimaabackend.model.sql.SolutionEntity;
 import com.example.arimaabackend.repository.mongo.PuzzleMongoRepository;
 import com.example.arimaabackend.repository.sql.PuzzleJpaRepository;
-import com.example.arimaabackend.repository.sql.SolutionJpaRepository;
 
 @Service
 @Profile("migration")
@@ -30,18 +28,15 @@ public class PuzzleMongoMigration implements MigrationStep {
     private static final Logger log = LoggerFactory.getLogger(PuzzleMongoMigration.class);
 
     private final PuzzleJpaRepository puzzleJpaRepository;
-    private final SolutionJpaRepository solutionJpaRepository;
     private final PuzzleMongoRepository puzzleMongoRepository;
     private final JdbcTemplate jdbcTemplate;
 
     public PuzzleMongoMigration(
         PuzzleJpaRepository puzzleJpaRepository,
-        SolutionJpaRepository solutionJpaRepository,
         PuzzleMongoRepository puzzleMongoRepository,
         JdbcTemplate jdbcTemplate
     ) {
         this.puzzleJpaRepository = puzzleJpaRepository;
-        this.solutionJpaRepository = solutionJpaRepository;
         this.puzzleMongoRepository = puzzleMongoRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -69,14 +64,21 @@ public class PuzzleMongoMigration implements MigrationStep {
             return;
         }
         Map<Integer, List<PuzzleDocument.Position>> openingByPuzzleId = loadPuzzleOpenings();
+        Map<Integer, List<PuzzleDocument.SolutionMove>> solutionsByPuzzleId = loadPuzzleSolutions();
         List<PuzzleDocument> documents = puzzleJpaRepository.findAll().stream()
-            .map(p -> toDocument(p, openingByPuzzleId.get(p.getId())))
+            .map(p -> toDocument(
+                    p,
+                    openingByPuzzleId.get(p.getId()),
+                    solutionsByPuzzleId.getOrDefault(p.getId(), List.of())))
             .toList();
         puzzleMongoRepository.saveAll(documents);
         log.info("[{}] migrated {} puzzles", stepName(), documents.size());
     }
 
-    private PuzzleDocument toDocument(PuzzleEntity e, List<PuzzleDocument.Position> opening) {
+    private PuzzleDocument toDocument(
+            PuzzleEntity e,
+            List<PuzzleDocument.Position> opening,
+            List<PuzzleDocument.SolutionMove> solutions) {
         var d = new PuzzleDocument();
         d.setId(e.getId());
         d.setName(e.getName());
@@ -84,31 +86,36 @@ public class PuzzleMongoMigration implements MigrationStep {
         d.setPlayerSide(e.getPlayerSide());
         d.setRounds(e.getRounds());
         d.setOpening(opening);
-
-        List<SolutionEntity> solutionEntities = solutionJpaRepository.findByPuzzle_IdOrderByTurnAscSequenceAsc(e.getId());
-        d.setSolution(solutionEntities.stream().map(this::solutionMove).toList());
+        d.setSolution(solutions);
         return d;
     }
 
-    private PuzzleDocument.SolutionMove solutionMove(SolutionEntity e) {
-        var m = new PuzzleDocument.SolutionMove();
-        m.setTurn(e.getTurn());
-        m.setSequence(e.getSequence());
-        m.setDirection(e.getDirection());
-        m.setStatus(e.getStatus());
-        m.setPosition(position(e.getPosition()));
-        return m;
-    }
-
-    private PuzzleDocument.Position position(com.example.arimaabackend.model.sql.PositionEntity p) {
-        if (p == null) {
-            return null;
-        }
-        var pos = new PuzzleDocument.Position();
-        pos.setColor(p.getColor());
-        pos.setPiece(p.getPiece());
-        pos.setCoordinate(p.getCoordinate());
-        return pos;
+    private Map<Integer, List<PuzzleDocument.SolutionMove>> loadPuzzleSolutions() {
+        var grouped = new HashMap<Integer, List<PuzzleDocument.SolutionMove>>();
+        jdbcTemplate.query(
+            """
+            SELECT s.puzzles_id, s.turn, s.sequence, s.direction, s.status,
+                   p.color, p.piece, p.cordinate
+            FROM Solutions s
+            JOIN Position p ON p.id = s.position_id
+            ORDER BY s.puzzles_id ASC, s.turn ASC, s.sequence ASC
+            """,
+            rs -> {
+                int puzzleId = rs.getInt("puzzles_id");
+                var move = new PuzzleDocument.SolutionMove();
+                move.setTurn(rs.getInt("turn"));
+                move.setSequence(rs.getInt("sequence"));
+                move.setDirection(rs.getString("direction"));
+                move.setStatus(rs.getString("status"));
+                move.setPosition(positionRow(
+                    rs.getString("color"),
+                    rs.getString("piece"),
+                    rs.getString("cordinate")
+                ));
+                grouped.computeIfAbsent(puzzleId, ignored -> new java.util.ArrayList<>()).add(move);
+            }
+        );
+        return grouped;
     }
 
     private Map<Integer, List<PuzzleDocument.Position>> loadPuzzleOpenings() {

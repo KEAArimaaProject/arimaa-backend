@@ -68,7 +68,7 @@ public class PlayerNeo4jMigration implements MigrationStep {
             log.info("[{}] dry-run: would migrate {} rows", stepName(), playerJpaRepository.count());
             return;
         }
-        var entities = playerJpaRepository.findAll();
+        var entities = playerJpaRepository.findAllWithUserAndCountry();
         var nodes = entities.stream().map(this::toNode).toList();
         List<Map<String, Object>> countryRows = entities.stream().map(this::countryLinkRow).toList();
         List<Map<String, Object>> userRows = entities.stream().map(this::userLinkRow).toList();

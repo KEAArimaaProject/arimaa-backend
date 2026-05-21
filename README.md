@@ -33,12 +33,16 @@ Main endpoints:
 
 ### 1) Start databases with Docker
 
-From the project root:
-
-```powershell
-docker compose --env-file .env -f .\Database\docker-compose.mysql.yml up -d
-docker compose --env-file .env -f .\Database\neo4j\docker-compose.neo4j.yml up -d
+- From the project root:
+Start the three databases by running this script:
 ```
+.\Database\scripts\restart-all-dbs.ps1
+```
+- if you need it later: check that the 3 databases are running:
+```
+.\Database\scripts\check-databases.ps1
+```
+
 
 ### 1B) Check that the mysql database is running correctly.
 ```powershell

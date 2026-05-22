@@ -15,6 +15,8 @@ public class MatchNode {
 
     private String terminationType;
     private String matchResult;
+    private Integer goldRating;
+    private Integer silverRating;
     private Instant timestamp;
 
     @Relationship(type = "HAS_PLAYER")
@@ -54,6 +56,22 @@ public class MatchNode {
 
     public void setMatchResult(String matchResult) {
         this.matchResult = matchResult;
+    }
+
+    public Integer getGoldRating() {
+        return goldRating;
+    }
+
+    public void setGoldRating(Integer goldRating) {
+        this.goldRating = goldRating;
+    }
+
+    public Integer getSilverRating() {
+        return silverRating;
+    }
+
+    public void setSilverRating(Integer silverRating) {
+        this.silverRating = silverRating;
     }
 
     public Instant getTimestamp() {

@@ -18,10 +18,8 @@ import com.example.arimaabackend.migration.spi.MigrationStep;
 import com.example.arimaabackend.migration.spi.MigrationTarget;
 import com.example.arimaabackend.model.mongo.MatchDocument;
 import com.example.arimaabackend.model.sql.MatchEntity;
-import com.example.arimaabackend.model.sql.MoveEntity;
 import com.example.arimaabackend.repository.mongo.MatchMongoRepository;
 import com.example.arimaabackend.repository.sql.MatchJpaRepository;
-import com.example.arimaabackend.repository.sql.MoveJpaRepository;
 
 @Service
 @Profile("migration")
@@ -31,18 +29,15 @@ public class MatchMongoMigration implements MigrationStep {
 
     private final MatchMongoRepository matchMongoRepository;
     private final MatchJpaRepository matchJpaRepository;
-    private final MoveJpaRepository moveJpaRepository;
     private final JdbcTemplate jdbcTemplate;
 
     public MatchMongoMigration(
         MatchMongoRepository matchMongoRepository,
         MatchJpaRepository matchJpaRepository,
-        MoveJpaRepository moveJpaRepository,
         JdbcTemplate jdbcTemplate
-    ) { 
+    ) {
         this.matchMongoRepository = matchMongoRepository;
         this.matchJpaRepository = matchJpaRepository;
-        this.moveJpaRepository = moveJpaRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -70,18 +65,27 @@ public class MatchMongoMigration implements MigrationStep {
             return;
         }
         Map<Integer, List<MatchDocument.Position>> openingByMatchId = loadMatchOpenings();
-        List<MatchDocument> documents = matchJpaRepository.findAll().stream()
-            .map(m -> toDocument(m, openingByMatchId.get(m.getId())))
+        Map<Integer, List<MatchDocument.Move>> movesByMatchId = loadMatchMoves();
+        List<MatchDocument> documents = matchJpaRepository.findAllForMigration().stream()
+            .map(m -> toDocument(
+                    m,
+                    openingByMatchId.get(m.getId()),
+                    movesByMatchId.getOrDefault(m.getId(), List.of())))
             .toList();
         matchMongoRepository.saveAll(documents);
         log.info("[{}] migrated {} matches", stepName(), documents.size());
     }
 
-    private MatchDocument toDocument(MatchEntity e, List<MatchDocument.Position> opening) {
+    private MatchDocument toDocument(
+            MatchEntity e,
+            List<MatchDocument.Position> opening,
+            List<MatchDocument.Move> moves) {
         var d = new MatchDocument();
         d.setId(e.getId());
         d.setTerminationType(e.getTerminationType());
         d.setMatchResult(e.getMatchResult());
+        d.setGoldRating(e.getGoldRating());
+        d.setSilverRating(e.getSilverRating());
         d.setTimestamp(e.getTimestamp());
 
         d.setPlayers(List.of(
@@ -92,9 +96,7 @@ public class MatchMongoMigration implements MigrationStep {
         d.setEvent(event(e));
         d.setGameType(gameType(e));
         d.setOpening(opening);
-
-        List<MoveEntity> moveEntities = moveJpaRepository.findByMatch_IdOrderByTurnAscSequenceAsc(e.getId());
-        d.setMoves(moveEntities.stream().map(this::move).toList());
+        d.setMoves(moves);
         return d;
     }
 
@@ -130,25 +132,32 @@ public class MatchMongoMigration implements MigrationStep {
         return gt;
     }
 
-    private MatchDocument.Move move(MoveEntity e) {
-        var m = new MatchDocument.Move();
-        m.setTurn(e.getTurn());
-        m.setSequence(e.getSequence());
-        m.setDirection(e.getDirection());
-        m.setStatus(e.getStatus());
-        m.setPosition(position(e.getPosition()));
-        return m;
-    }
-
-    private MatchDocument.Position position(com.example.arimaabackend.model.sql.PositionEntity p) {
-        if (p == null) {
-            return null;
-        }
-        var pos = new MatchDocument.Position();
-        pos.setColor(p.getColor());
-        pos.setPiece(p.getPiece());
-        pos.setCoordinate(p.getCoordinate());
-        return pos;
+    private Map<Integer, List<MatchDocument.Move>> loadMatchMoves() {
+        var grouped = new HashMap<Integer, List<MatchDocument.Move>>();
+        jdbcTemplate.query(
+            """
+            SELECT mv.matches_id, mv.turn, mv.sequence, mv.direction, mv.status,
+                   p.color, p.piece, p.cordinate
+            FROM Moves mv
+            JOIN Position p ON p.id = mv.position_id
+            ORDER BY mv.matches_id ASC, mv.turn ASC, mv.sequence ASC
+            """,
+            rs -> {
+                int matchId = rs.getInt("matches_id");
+                var move = new MatchDocument.Move();
+                move.setTurn(rs.getInt("turn"));
+                move.setSequence(rs.getInt("sequence"));
+                move.setDirection(rs.getString("direction"));
+                move.setStatus(rs.getString("status"));
+                move.setPosition(positionRow(
+                    rs.getString("color"),
+                    rs.getString("piece"),
+                    rs.getString("cordinate")
+                ));
+                grouped.computeIfAbsent(matchId, ignored -> new java.util.ArrayList<>()).add(move);
+            }
+        );
+        return grouped;
     }
 
     private Map<Integer, List<MatchDocument.Position>> loadMatchOpenings() {

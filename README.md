@@ -33,12 +33,16 @@ Main endpoints:
 
 ### 1) Start databases with Docker
 
-From the project root:
-
-```powershell
-docker compose --env-file .env -f .\Database\docker-compose.mysql.yml up -d
-docker compose --env-file .env -f .\Database\neo4j\docker-compose.neo4j.yml up -d
+- From the project root:
+Start the three databases by running this script:
 ```
+.\Database\scripts\restart-all-dbs.ps1
+```
+- if you need it later: check that the 3 databases are running:
+```
+.\Database\scripts\check-databases.ps1
+```
+
 
 ### 1B) Check that the mysql database is running correctly.
 ```powershell
@@ -93,7 +97,7 @@ Set these keys in `src/main/resources/application-migration.properties` (or pass
 If either list is omitted, it defaults to `ALL` for that dimension.  
 Use `migration.dry-run=true` to log counts without writing to target stores.
 
-**Dependency order** (enforced by each step’s order value): country → event → game-type → position → puzzle → player → match → move → solution → opening-by-match → opening-by-puzzle → user. If you enable only a subset, ensure upstream nodes already exist in Neo4j.
+**Dependency order** (enforced by each step’s order value): country → event → game-type → position → puzzle → user → player → match → move → solution → opening-by-match → opening-by-puzzle. If you enable only a subset, ensure upstream nodes already exist in Neo4j.
 
 
 

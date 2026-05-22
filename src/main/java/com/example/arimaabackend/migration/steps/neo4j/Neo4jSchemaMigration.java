@@ -61,6 +61,13 @@ public class Neo4jSchemaMigration implements MigrationStep {
             neo4jClient.query("CREATE CONSTRAINT IF NOT EXISTS FOR (s:Solution) REQUIRE s.id IS UNIQUE").run();
             neo4jClient.query("CREATE CONSTRAINT IF NOT EXISTS FOR (v:Move) REQUIRE v.id IS UNIQUE").run();
             neo4jClient.query("CREATE CONSTRAINT IF NOT EXISTS FOR (p:Position) REQUIRE p.id IS UNIQUE").run();
+            neo4jClient.query("CREATE CONSTRAINT IF NOT EXISTS FOR (u:User) REQUIRE u.id IS UNIQUE").run();
+
+            // Uniques from SQL schema (identity on User, not Player).
+            neo4jClient.query("CREATE CONSTRAINT IF NOT EXISTS FOR (c:Country) REQUIRE c.name IS UNIQUE").run();
+            neo4jClient.query("CREATE CONSTRAINT IF NOT EXISTS FOR (z:Puzzle) REQUIRE z.name IS UNIQUE").run();
+            neo4jClient.query("CREATE CONSTRAINT IF NOT EXISTS FOR (u:User) REQUIRE u.username IS UNIQUE").run();
+            neo4jClient.query("CREATE CONSTRAINT IF NOT EXISTS FOR (u:User) REQUIRE u.email IS UNIQUE").run();
 
             // Synthetic keys used for move/opening grouping.
             neo4jClient.query("CREATE CONSTRAINT IF NOT EXISTS FOR (ml:MoveList) REQUIRE ml.key IS UNIQUE").run();

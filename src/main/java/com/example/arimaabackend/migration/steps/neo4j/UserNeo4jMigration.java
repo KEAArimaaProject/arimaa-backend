@@ -49,7 +49,7 @@ public class UserNeo4jMigration implements MigrationStep {
 
     @Override
     public int getOrder() {
-        return 120;
+        return 55;
     }
 
     @Override

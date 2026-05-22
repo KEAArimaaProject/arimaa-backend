@@ -123,7 +123,33 @@ Use `UserMongoMigration` as a reference.
 
 ---
 
-## 5) Common issues and fixes
+## 5) MySQL prerequisite
+
+The migrator reads the **current** JPA schema (`Users` + `Players.user_id`). That requires the Docker MySQL init scripts to have run through [`Database/mysql/Sql_arimaa_62_user.sql`](Database/mysql/Sql_arimaa_62_user.sql) (not `Sql_arimaa_10_init.sql` alone).
+
+Start MySQL with the project compose file so all init scripts apply in order.
+
+---
+
+## 6) Step order and step ids
+
+### Neo4j (lower `getOrder()` runs first)
+
+`neo4j-schema` → `country` → `event` → `game-type` → `position` → `puzzle` → **`user`** → `player` → `match` → `move` → `solution` → `opening-by-match` → `opening-by-puzzle`
+
+`user` must run before `player` so `HAS_USER` edges can link to existing `:User` nodes.
+
+### MongoDB
+
+`user-mongo` (121) → `player-mongo` (122) → `match-mongo` (123) → `puzzle-mongo` (124)
+
+### All step ids
+
+`country`, `event`, `game-type`, `position`, `puzzle`, `user`, `player`, `match`, `move`, `solution`, `opening-by-match`, `opening-by-puzzle`, `neo4j-schema`, `user-mongo`, `player-mongo`, `match-mongo`, `puzzle-mongo`
+
+---
+
+## 7) Common issues and fixes
 
 - **Bean conflict with same migration class name**  
   Usually caused by duplicate class/package names or stale `target/classes`.  

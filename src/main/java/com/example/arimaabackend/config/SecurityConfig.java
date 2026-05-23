@@ -54,6 +54,14 @@ public class SecurityConfig {
                     // Admin-only: create, get, delete users
                     .requestMatchers(HttpMethod.POST, "/api/users").hasRole(localAdmin)
                     .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.POST, "/api/mongo/users").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.DELETE, "/api/mongo/users/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.POST, "/api/mongo/players").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.PUT, "/api/mongo/players/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.DELETE, "/api/mongo/players/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.POST, "/api/mongo/matches").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.PUT, "/api/mongo/matches/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.DELETE, "/api/mongo/matches/**").hasRole(localAdmin)
                     .requestMatchers("/api/admin/**").hasRole(localAdmin)
                     // Everything else requires authentication
                     .anyRequest().authenticated()

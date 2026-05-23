@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("users")
 public class UserDocument {
 
+    public static final String SEQUENCE_NAME = "users_sequence";
+
     @Id
     private Long id;
 

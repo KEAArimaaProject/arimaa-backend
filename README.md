@@ -34,9 +34,10 @@ Main endpoints:
 ### 1) Start databases with Docker
 
 - From the project root:
-Start the three databases by running this script:
+restarts the database, perform the migration from mysql to mongo and neo4j
+and finally run the program with .\mvnw.cmd spring-boot:run.
 ```
-.\Database\scripts\restart-all-dbs.ps1
+.\Database\scripts\prepare-and-start.ps1
 ```
 - if you need it later: check that the 3 databases are running:
 ```
@@ -61,12 +62,21 @@ Run [Database/neo4j/constraints.cypher](Database/neo4j/constraints.cypher) in Ne
 ```powershell
 mvn spring-boot:run "-Dspring-boot.run.profiles=migration" "-Dspring-boot.run.arguments=--migration.dry-run=true"
 ```
+or
+```
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=migration" "-Dspring-boot.run.arguments=--migration.dry-run=true"
+```
 
 ### 4) Run the real migration
 
 ```powershell
 mvn spring-boot:run "-Dspring-boot.run.profiles=migration" "-Dspring-boot.run.arguments=--migration.dry-run=false"
 ```
+or
+```
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=migration" "-Dspring-boot.run.arguments=--migration.dry-run=false"
+```
+
 You can still run from Bash (Git Bash, WSL, macOS, Linux):
 
 ```bash

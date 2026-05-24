@@ -36,7 +36,7 @@ foreach ($svc in $services) {
 
         switch ($svc.Name) {
             "MySQL" {
-                $result = docker exec $svc.Container mysqladmin ping -h localhost -u root -p123456 --silent 2>$null
+                $result = docker exec $svc.Container mysqladmin ping -h localhost -u root -p123456 --silent 2>&1 | Out-Null
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host "   MySQL is responsive" -ForegroundColor Green
                 } else {
@@ -44,16 +44,16 @@ foreach ($svc in $services) {
                 }
             }
             "MongoDB" {
-                $result = docker exec $svc.Container mongosh --eval "db.runCommand({ ping: 1 })" --quiet 2>$null
-                if ($result) {
+                $result = docker exec $svc.Container mongosh --eval "db.runCommand({ ping: 1 })" --quiet 2>&1
+                if ($LASTEXITCODE -eq 0 -and $result) {
                     Write-Host "   MongoDB is responsive" -ForegroundColor Green
                 } else {
                     Write-Host "   MongoDB running but still starting up" -ForegroundColor Yellow
                 }
             }
             "Neo4j" {
-                $result = docker exec $svc.Container cypher-shell -u neo4j -p arimaa123 "RETURN 'ready' AS status" 2>$null
-                if ($result -like "*ready*") {
+                $result = docker exec $svc.Container cypher-shell -u neo4j -p arimaa123 "RETURN 'ready' AS status" 2>&1
+                if ($LASTEXITCODE -eq 0 -and $result -like "*ready*") {
                     Write-Host "   Neo4j is responsive" -ForegroundColor Green
                 } else {
                     Write-Host "   Neo4j running but still starting up" -ForegroundColor Yellow

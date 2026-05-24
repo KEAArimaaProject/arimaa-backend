@@ -1,4 +1,4 @@
-package com.example.arimaabackend.playwright;
+package com.example.arimaabackend.playwright.sql;
 
 import com.example.arimaabackend.dto.PlayerCreateRequest;
 import com.example.arimaabackend.dto.PlayerUpdateRequest;
@@ -91,7 +91,7 @@ class PlayerTest {
 
         try {
             // Create a Player
-            PlayerCreateRequest playerRequestData = new PlayerCreateRequest(userId, 1500, 100, 5, 1);
+            PlayerCreateRequest playerRequestData = new PlayerCreateRequest(userId, 1500, 100, 5, 1, null);
             APIResponse playerCreateResponse = adminRequest.post("/api/players", RequestOptions.create().setData(playerRequestData));
             assertEquals(201, playerCreateResponse.status(), "Failed to create player: " + playerCreateResponse.text());
             
@@ -132,7 +132,7 @@ class PlayerTest {
 
     @Test
     void AsAdmin_FailToCreatePlayerWithoutUserObj() {
-        PlayerCreateRequest playerRequestData = new PlayerCreateRequest(null, 1500, 100, 5, 1);
+        PlayerCreateRequest playerRequestData = new PlayerCreateRequest(null, 1500, 100, 5, 1, null);
         APIResponse playerCreateResponse = adminRequest.post("/api/players", RequestOptions.create().setData(playerRequestData));
         assertEquals(400, playerCreateResponse.status(), "Expected status 400 but got: " + playerCreateResponse.text());
     }
@@ -140,7 +140,7 @@ class PlayerTest {
 
     @Test
     void AsUser_FailToCreatePlayerWithoutUser() {
-        PlayerCreateRequest playerRequestData = new PlayerCreateRequest(null, 1500, 100, 5, 1);
+        PlayerCreateRequest playerRequestData = new PlayerCreateRequest(null, 1500, 100, 5, 1, null);
         APIResponse playerCreateResponse = userRequest.post("/api/players", RequestOptions.create().setData(playerRequestData));
         assertEquals(400, playerCreateResponse.status(), "Expected status 400 but got: " + playerCreateResponse.text());
     }
@@ -192,7 +192,7 @@ class PlayerTest {
 
         try {
             // Create a Player
-            PlayerCreateRequest playerRequestData = new PlayerCreateRequest(userId, 1500, 100, 5, 1);
+            PlayerCreateRequest playerRequestData = new PlayerCreateRequest(userId, 1500, 100, 5, 1, null);
             APIResponse playerCreateResponse = adminRequest.post("/api/players", RequestOptions.create().setData(playerRequestData));
             assertEquals(201, playerCreateResponse.status(), "Failed to create player: " + playerCreateResponse.text());
 

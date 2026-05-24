@@ -9,6 +9,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -23,11 +25,13 @@ public class MigrationRunner implements CommandLineRunner {
 
     private final List<MigrationStep> migrations;
     private final MigrationProperties migrationProperties;
+    private final ApplicationContext applicationContext;
 
-    public MigrationRunner(List<MigrationStep> migrations, MigrationProperties migrationProperties) {
+    public MigrationRunner(List<MigrationStep> migrations, MigrationProperties migrationProperties, ApplicationContext applicationContext) {
         this.migrations = new ArrayList<>(migrations);
         this.migrations.sort(Comparator.comparingInt(MigrationStep::getOrder));
         this.migrationProperties = migrationProperties;
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -43,6 +47,8 @@ public class MigrationRunner implements CommandLineRunner {
 
         logStepsSkippedByTarget(stepsEnabledByName, executedSteps);
         log.info("Data migration completed.");
+
+        System.exit(SpringApplication.exit(applicationContext, () -> 0));
     }
 
     private void logStart(Set<MigrationTarget> enabledTargets, List<MigrationTarget> targetOrder) {

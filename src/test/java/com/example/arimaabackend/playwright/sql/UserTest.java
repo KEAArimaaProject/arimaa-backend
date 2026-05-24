@@ -1,7 +1,6 @@
-package com.example.arimaabackend.playwright;
+package com.example.arimaabackend.playwright.sql;
 
 import com.example.arimaabackend.dto.UserCreateRequest;
-import com.example.arimaabackend.dto.UserResponse;
 import com.example.arimaabackend.dto.UserUpdateRequest;
 import com.microsoft.playwright.options.RequestOptions;
 import com.fasterxml.jackson.databind.JsonNode;

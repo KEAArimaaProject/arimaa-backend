@@ -218,7 +218,7 @@ class PlayerServiceTest {
 
     @Test
     void create_validRequest_createsPlayer() {
-        PlayerCreateRequest request = new PlayerCreateRequest(2L, 1600, 150, 20, 1);
+        PlayerCreateRequest request = new PlayerCreateRequest(2L, 1600, 150, 20, 1, null);
         
         when(userJpaRepository.findById(2L)).thenReturn(Optional.of(user2));
         when(playerJpaRepository.findByUser_Id(2L)).thenReturn(Optional.empty());
@@ -235,7 +235,7 @@ class PlayerServiceTest {
 
     @Test
     void create_userNotFound_throws404() {
-        PlayerCreateRequest request = new PlayerCreateRequest(99L, 1200, 0, 0, 1);
+        PlayerCreateRequest request = new PlayerCreateRequest(99L, 1200, 0, 0, 1, null);
         when(userJpaRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> playerService.create(request))
@@ -245,7 +245,7 @@ class PlayerServiceTest {
 
     @Test
     void create_playerAlreadyExists_throws409() {
-        PlayerCreateRequest request = new PlayerCreateRequest(1L, 1200, 0, 0, 1);
+        PlayerCreateRequest request = new PlayerCreateRequest(1L, 1200, 0, 0, 1, null);
         when(userJpaRepository.findById(1L)).thenReturn(Optional.of(user1));
         when(playerJpaRepository.findByUser_Id(1L)).thenReturn(Optional.of(player1));
 
@@ -256,7 +256,7 @@ class PlayerServiceTest {
 
     @Test
     void create_countryNotFound_throws404() {
-        PlayerCreateRequest request = new PlayerCreateRequest(2L, 1200, 0, 0, 99);
+        PlayerCreateRequest request = new PlayerCreateRequest(2L, 1200, 0, 0, 99, null);
         when(userJpaRepository.findById(2L)).thenReturn(Optional.of(user2));
         when(playerJpaRepository.findByUser_Id(2L)).thenReturn(Optional.empty());
         when(countryJpaRepository.findById(99)).thenReturn(Optional.empty());

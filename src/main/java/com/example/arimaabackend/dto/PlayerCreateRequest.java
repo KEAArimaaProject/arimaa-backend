@@ -12,6 +12,7 @@ public record PlayerCreateRequest(
 
         Integer gamesPlayed,
 
-        @NotNull
-        Integer countryId
+        Integer countryId,
+
+        String country
 ) {}

@@ -68,6 +68,9 @@ public class UserNeo4jMigration implements MigrationStep {
         n.setId(e.getId());
         n.setUsername(e.getUsername());
         n.setEmail(e.getEmail());
+        n.setRole(e.getRole());
+        n.setCreatedAt(e.getCreatedAt());
+        n.setUpdatedAt(e.getUpdatedAt());
         return n;
     }
 }

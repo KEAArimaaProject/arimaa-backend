@@ -39,6 +39,7 @@ and finally run the program with .\mvnw.cmd spring-boot:run.
 ```
 .\Database\scripts\prepare-and-start.ps1
 ```
+(the script can randomly fail the first time, by "freezing". If it happens, just run it again).
 - if you need it later: check that the 3 databases are running:
 ```
 .\Database\scripts\check-databases.ps1
@@ -163,6 +164,52 @@ User: root
 Password: <MYSQL_ROOT_PASSWORD from .env>
 JDBC URL: jdbc:mysql://localhost:5000/arimaadockermysqldb?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
 
+
+### Debug migrations + Neo4j
+
+
+1. Create a migration debugging run configuration:
+    - Go to the top menu: **Run** > **Edit Configurations...**
+    - Click the **+** (Add New Configuration) button in the top-left corner.
+    - Select **Remote JVM Debug** from the list.
+    - Name it: `Migration Debug (5005)`
+    - In the configuration window, ensure these fields are set:
+        - **Debugger mode**: `Attach to remote JVM`
+        - **Host**: `localhost`
+        - **Port**: `5005`
+    - Click **OK** to save.
+    - Keep the new run configuration for later.
+
+2. Run debug script:  
+- stop anything that is running (press `Ctrl+C` in the terminal)
+- Run the debug script:
+   ```powershell
+   .\Database\scripts\debug-migration-neo4j.ps1 user false true
+   ```
+   (The first argument is the step name, the second is whether to dry-run, the third is whether to exit on complete).*
+   (If you set the second argument to `true` (dry-run), the migration will skip the actual processing logic. To hit breakpoints inside the migration logic (e.g., in `toNode` or after the `dryRun` check), you MUST run it with `false`:
+
+3. Use your new run configuration `Migration Debug (5005)` to attach the debugger:
+   - You can now click on the debug  button next to the run configuration `Migration Debug (5005)`.
+
+4. Identify Completion: Look for these messages in the terminal where you ran the script:
+   - `Finished step 'user' in ... ms` (indicates the specific step finished).
+   - `Data migration completed.` (indicates the entire runner is done).
+
+5. you can now run the run the program: .\mvnw.cmd spring-boot:run
+and run the neo4j tests.
+
+### How to verify migration success
+Besides looking at the logs, you can verify that the data was correctly written to Neo4j:
+1. Open Neo4j Browser: Go to [http://localhost:7474/](http://localhost:7474/).
+2. Check Node Counts: Run this Cypher query to see how many nodes were created:
+   ```cypher
+   MATCH (n) RETURN labels(n), count(n)
+   ```
+3. Inspect Specific Nodes: To see the migrated users:
+   ```cypher
+   MATCH (u:User) RETURN u LIMIT 25
+   ```
 
 ### Debug playwright tests
 To debug the playwright tests here:

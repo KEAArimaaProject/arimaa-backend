@@ -1,4 +1,4 @@
-package com.example.arimaabackend.playwright.sql;
+package com.example.arimaabackend.playwright.neo4j;
 
 import com.example.arimaabackend.dto.UserCreateRequest;
 import com.example.arimaabackend.dto.UserUpdateRequest;
@@ -15,7 +15,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UserTest {
+class UserNeo4jTest {
 
     private Playwright playwright;
     private Dotenv dotenv;
@@ -24,7 +24,7 @@ class UserTest {
     private APIRequestContext adminRequest;
     private APIRequestContext userRequest;
 
-    private static String API_USERS = "/api/users";
+    private static String API_USERS = "/api/neo4j/users";
 
     @BeforeAll
     void setup() {
@@ -70,6 +70,7 @@ class UserTest {
         if (userRequest != null) userRequest.dispose();
         if (playwright != null) playwright.close();
     }
+
 
     @Test
     void AsUser_FailToCreateUser() {

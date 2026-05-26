@@ -36,6 +36,8 @@ public class MigrationProperties {
 
     private boolean dryRun = false;
 
+    private boolean exitOnComplete = true;
+
     public List<String> getEnabledTargets() {
         return enabledTargets;
     }
@@ -66,6 +68,14 @@ public class MigrationProperties {
 
     public void setDryRun(boolean dryRun) {
         this.dryRun = dryRun;
+    }
+
+    public boolean isExitOnComplete() {
+        return exitOnComplete;
+    }
+
+    public void setExitOnComplete(boolean exitOnComplete) {
+        this.exitOnComplete = exitOnComplete;
     }
 
     /**

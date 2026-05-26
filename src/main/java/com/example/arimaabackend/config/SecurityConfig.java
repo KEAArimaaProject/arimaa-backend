@@ -56,6 +56,8 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole(localAdmin)
                     .requestMatchers(HttpMethod.POST, "/api/mongo/users").hasRole(localAdmin)
                     .requestMatchers(HttpMethod.DELETE, "/api/mongo/users/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.POST, "/api/neo4j/users").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.DELETE, "/api/neo4j/users/**").hasRole(localAdmin)
                     .requestMatchers(HttpMethod.POST, "/api/mongo/players").hasRole(localAdmin)
                     .requestMatchers(HttpMethod.PUT, "/api/mongo/players/**").hasRole(localAdmin)
                     .requestMatchers(HttpMethod.DELETE, "/api/mongo/players/**").hasRole(localAdmin)

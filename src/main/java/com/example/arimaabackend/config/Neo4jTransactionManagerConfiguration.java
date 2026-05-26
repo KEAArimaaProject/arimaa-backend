@@ -16,7 +16,6 @@ import org.springframework.orm.jpa.JpaTransactionManager;
  * the other store, so both managers must be registered explicitly here.
  */
 @Configuration
-@Profile("migration")
 public class Neo4jTransactionManagerConfiguration {
 
     @Bean(name = "transactionManager")

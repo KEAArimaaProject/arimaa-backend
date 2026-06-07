@@ -242,7 +242,7 @@ if they dont raise errors, then run this:
 
 
 
-# Watch MongoDO Information in the browser
+# Watch MongoDO Data
 
 After running `.\Database\scripts\prepare-and-start.ps1`, 
 your MongoDB instance will be running in a Docker container on 
@@ -296,6 +296,56 @@ To add it to the project permanently, add this service to `Database/docker-compo
 ```
 Then restart your databases: `.\Database\scripts\restart-all-dbs.ps1`.
 Access the UI at: [http://localhost:8081/](http://localhost:8081/)
+
+
+
+
+
+
+
+
+
+# Watch Neo4J Data
+
+After running `.\Database\scripts\prepare-and-start.ps1`, 
+your Neo4j instance will be running in a Docker container. 
+You can visualize and manage the graph data using the following tools.
+
+Suggestion: go to http://localhost:7474
+- Protocol: neo4j://
+- Connect URL: localhost:7687
+- Database User: neo4j
+- Password: arimaa123
+
+
+
+## Full list of tools for viewing Neo4J data:
+
+## 1. Neo4j Browser (Web Interface)
+The easiest way to view your data is through the built-in web interface:
+1. Open your browser and go to: [http://localhost:7474](http://localhost:7474)
+2. Connect using the following credentials:
+   - **Connect URL:** `bolt://localhost:7687`
+   - **Username:** `neo4j`
+   - **Password:** `arimaa123`
+3. Once logged in, you can run Cypher queries (e.g., `MATCH (n) RETURN n LIMIT 25`) to visualize your nodes and relationships.
+
+## 2. Neo4j Desktop (Recommended Desktop Client)
+For a more powerful development environment, you can use **Neo4j Desktop**:
+1. Download and install [Neo4j Desktop](https://neo4j.com/download/).
+2. Create a new project.
+3. Click **Add** -> **Remote Connection**.
+4. Enter the connection details:
+   - **Name:** Arimaa Backend
+   - **Connect URL:** `bolt://localhost:7687`
+   - **Authentication:** Username/Password (`neo4j` / `arimaa123`)
+5. Click **Connect** and open the database to start exploring.
+
+## 3. Cypher Shell (CLI)
+If you prefer the command line, you can access the shell directly through Docker:
+```powershell
+docker exec -it arimaadockerneo4jdb cypher-shell -u neo4j -p arimaa123
+```
 
 
 

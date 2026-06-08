@@ -235,11 +235,44 @@ first run these:
 if they dont raise errors, then run this:
 -  docker compose --env-file .env -f .\Database\docker-compose.mysql.yml logs -f --tail=50   
 
+# Cloud Deployment
 
+The project has a partial cloud deployment.
 
+MongoDB has been deployed using **MongoDB Atlas**, and Neo4j has been deployed using **Neo4j AuraDB**. Both cloud databases were populated using the existing migration application.
 
+MySQL was also attempted deployed using **Azure Database for MySQL Flexible Server**, but Azure blocked the deployment because of an Azure for Students subscription policy. Because of this, MySQL and the Spring Boot backend currently still run locally.
 
+## Deployment status
 
+| Component | Status |
+|---|---|
+| Spring Boot backend | Runs locally |
+| MySQL | Runs locally with Docker |
+| MongoDB | Deployed to MongoDB Atlas |
+| Neo4j | Deployed to Neo4j AuraDB |
+| Migrator | Used to migrate data to MongoDB Atlas and Neo4j AuraDB |
+| Azure MySQL | Attempted, but blocked by Azure policy |
+
+## Access to the cloud databases
+
+The cloud databases are hosted in shared cloud project instances.
+
+Access to the MongoDB Atlas and Neo4j AuraDB browser interfaces is not automatic. A group member must either:
+
+- be invited to the shared MongoDB Atlas / Neo4j AuraDB project, or
+- use the shared connection details from the internal group guide.
+
+Credentials and passwords are not included in this README.
+
+## MongoDB Atlas guide
+
+MongoDB Atlas is used for the cloud document database.
+
+The deployed MongoDB database is:
+
+```text
+arimaadockermysqldb
 
 
 # Watch MongoDO Data

@@ -11,6 +11,13 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- Schema arimaadockermysqldb
 -- -----------------------------------------------------
 
+CREATE USER 'admin'@'%' IDENTIFIED BY 'AdminPassword123!';
+CREATE USER 'user'@'%' IDENTIFIED BY 'UserPassword123!';
+
+GRANT ALL PRIVILEGES ON arimaadockermysqldb.* TO 'admin'@'%';
+GRANT SELECT, INSERT, UPDATE ON arimaadockermysqldb.* TO 'user'@'%';
+
+FLUSH PRIVILEGES;
 -- -----------------------------------------------------
 -- Schema arimaadockermysqldb
 -- -----------------------------------------------------

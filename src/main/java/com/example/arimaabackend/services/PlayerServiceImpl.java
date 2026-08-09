@@ -49,8 +49,11 @@ public class PlayerServiceImpl implements PlayerService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Player for user %d already exists".formatted(user.getId()));
         }
 
-        CountryEntity country = countryJpaRepository.findById(request.countryId())
+        CountryEntity country = null;
+        if (request.countryId() != null) {
+            country = countryJpaRepository.findById(request.countryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country %d not found".formatted(request.countryId())));
+        }
 
         PlayerEntity entity = new PlayerEntity();
         entity.setUser(user);
@@ -68,8 +71,11 @@ public class PlayerServiceImpl implements PlayerService {
         PlayerEntity entity = playerJpaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player %d not found".formatted(id)));
 
-        CountryEntity country = countryJpaRepository.findById(request.countryId())
+        CountryEntity country = null;
+        if (request.countryId() != null) {
+            country = countryJpaRepository.findById(request.countryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country %d not found".formatted(request.countryId())));
+        }
 
         entity.setRating(request.rating());
         entity.setRu(request.ru());

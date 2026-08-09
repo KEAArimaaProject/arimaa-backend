@@ -89,8 +89,8 @@ public class MatchMongoMigration implements MigrationStep {
         d.setTimestamp(e.getTimestamp());
 
         d.setPlayers(List.of(
-            playerRef(e.getGoldPlayer().getId(), "GOLD"),
-            playerRef(e.getSilverPlayer().getId(), "SILVER")
+            playerRef(e.getGoldPlayer().getId(), "gold"),
+            playerRef(e.getSilverPlayer().getId(), "silver")
         ));
 
         d.setEvent(event(e));

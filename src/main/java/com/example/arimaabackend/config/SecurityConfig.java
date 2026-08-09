@@ -1,6 +1,5 @@
 package com.example.arimaabackend.config;
 
-import com.example.arimaabackend.security.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.example.arimaabackend.security.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
@@ -54,6 +55,16 @@ public class SecurityConfig {
                     // Admin-only: create, get, delete users
                     .requestMatchers(HttpMethod.POST, "/api/users").hasRole(localAdmin)
                     .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.POST, "/api/mongo/users").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.DELETE, "/api/mongo/users/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.POST, "/api/neo4j/users").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.DELETE, "/api/neo4j/users/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.POST, "/api/mongo/players").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.PUT, "/api/mongo/players/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.DELETE, "/api/mongo/players/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.POST, "/api/mongo/matches").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.PUT, "/api/mongo/matches/**").hasRole(localAdmin)
+                    .requestMatchers(HttpMethod.DELETE, "/api/mongo/matches/**").hasRole(localAdmin)
                     .requestMatchers("/api/admin/**").hasRole(localAdmin)
                     // Everything else requires authentication
                     .anyRequest().authenticated()

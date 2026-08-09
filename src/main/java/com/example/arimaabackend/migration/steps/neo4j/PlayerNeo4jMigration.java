@@ -83,21 +83,12 @@ public class PlayerNeo4jMigration implements MigrationStep {
     private PlayerNode toNode(PlayerEntity e) {
         var n = new PlayerNode();
         n.setId(e.getId());
-        n.setUser(userRef(e.getUser()));
         n.setRating(e.getRating());
         n.setRu(e.getRu());
         n.setGamesPlayed(e.getGamesPlayed());
         return n;
     }
 
-    private UserNode userRef(com.example.arimaabackend.model.sql.UserEntity userEntity) {
-        if (userEntity == null) {
-            return null;
-        }
-        var u = new UserNode();
-        u.setId(userEntity.getId());
-        return u;
-    }
 
     private Map<String, Object> countryLinkRow(PlayerEntity e) {
         var m = new HashMap<String, Object>();

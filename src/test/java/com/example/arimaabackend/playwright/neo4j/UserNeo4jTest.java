@@ -1,7 +1,6 @@
-package com.example.arimaabackend.playwright;
+package com.example.arimaabackend.playwright.neo4j;
 
 import com.example.arimaabackend.dto.UserCreateRequest;
-import com.example.arimaabackend.dto.UserResponse;
 import com.example.arimaabackend.dto.UserUpdateRequest;
 import com.microsoft.playwright.options.RequestOptions;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,7 +15,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class UserTest {
+class UserNeo4jTest {
 
     private Playwright playwright;
     private Dotenv dotenv;
@@ -24,6 +23,8 @@ class UserTest {
 
     private APIRequestContext adminRequest;
     private APIRequestContext userRequest;
+
+    private static String API_USERS = "/api/neo4j/users";
 
     @BeforeAll
     void setup() {
@@ -70,6 +71,7 @@ class UserTest {
         if (playwright != null) playwright.close();
     }
 
+
     @Test
     void AsUser_FailToCreateUser() {
         String uniqueSuffix = String.valueOf(System.currentTimeMillis());
@@ -77,18 +79,18 @@ class UserTest {
                 "usernametest_" + uniqueSuffix,
                 "usernametest_" + uniqueSuffix + "@unknown.invalid",
                 "usernametest1_userCantCreateuser");
-        APIResponse response = userRequest.post("/api/users", RequestOptions.create().setData(createUser));
+        APIResponse response = userRequest.post(API_USERS, RequestOptions.create().setData(createUser));
         assertFalse(response.ok(), "Expected 4xx status. Got: " + response.status());
         assertEquals(403, response.status());
     }
 
     @Test
     void AsUser_FailToDeleteUser() {
-        APIResponse getFirstUserResponse = adminRequest.get("/api/users/" + 1);
+        APIResponse getFirstUserResponse = adminRequest.get(API_USERS + "/1");
         assertTrue(getFirstUserResponse.ok(), "Expected 2xx status. Got: " + getFirstUserResponse.status());
         assertEquals(200, getFirstUserResponse.status());
 
-        APIResponse responseDelete = userRequest.delete("/api/users/" + 1);
+        APIResponse responseDelete = userRequest.delete(API_USERS + "/1");
         assertFalse(responseDelete.ok(), "Expected 4xx status. Got: " + responseDelete.status());
         assertEquals(403, responseDelete.status());
     }
@@ -96,13 +98,14 @@ class UserTest {
     @Test
     void AsAdmin_CreateThenDeleteUser() {
         // Create user (to delete later)
-        String username = "AsAdmin_CreateThenDeleteUser";
+        String uniqueSuffix = String.valueOf(System.currentTimeMillis());
+        String username = "DeleteMe_" + uniqueSuffix;
         UserCreateRequest createUser = new UserCreateRequest(
                 username,
-                "usernametest_" + username + "@unknown.invalid",
-                "username_123_" + username);
-        APIResponse response = adminRequest.post("/api/users", RequestOptions.create().setData(createUser));
-        assertTrue(response.ok(), "Expected 2xx status. Got: " + response.status());
+                "delete_me_" + uniqueSuffix + "@unknown.invalid",
+                "password_123");
+        APIResponse response = adminRequest.post(API_USERS, RequestOptions.create().setData(createUser));
+        assertTrue(response.ok(), "Expected 2xx status. Got: " + response.status() + " Body: " + response.text());
         assertEquals(201, response.status());
         JsonNode json;
         try {
@@ -111,22 +114,22 @@ class UserTest {
             fail("Invalid JSON response: " + e.getMessage());
             return;
         }
-        Integer newUserId = json.path("id").asInt();
+        Long newUserId = json.path("id").asLong();
         String newUserName = json.path("username").asText();
         assertEquals(username, newUserName);
 
         // get user by newUserId
-        APIResponse getNewUserResponse = adminRequest.get("/api/users/" + newUserId);
-        assertTrue(getNewUserResponse.ok(), "Expected 2xx status. Got: " + getNewUserResponse.status());
+        APIResponse getNewUserResponse = adminRequest.get(API_USERS + "/" + newUserId);
+        assertTrue(getNewUserResponse.ok(), "Expected 2xx status. Got: " + getNewUserResponse.status() + " Body: " + getNewUserResponse.text());
         assertEquals(200, getNewUserResponse.status());
 
         // delete the user
-        APIResponse responseDelete = adminRequest.delete("/api/users/" + newUserId);
+        APIResponse responseDelete = adminRequest.delete(API_USERS + "/" + newUserId);
         assertTrue(responseDelete.ok(), "Expected 2xx status. Got: " + responseDelete.status());
         assertEquals(204, responseDelete.status());
 
         // try to find the deleted user again
-        APIResponse responseget18deleted = adminRequest.get("/api/users/" + newUserId);
+        APIResponse responseget18deleted = adminRequest.get(API_USERS + "/" + newUserId);
         assertEquals(404, responseget18deleted.status(),
                 "Expected 404 Not Found after user deletion, but got: " + response.status());
     }
@@ -134,7 +137,7 @@ class UserTest {
 
     @Test
     void AsAdmin_GetUserById() {
-        APIResponse response = adminRequest.get("/api/users/1");
+        APIResponse response = adminRequest.get(API_USERS + "/1");
         assertTrue(response.ok(), "Expected 2xx status. Got: " + response.status());
         assertEquals(200, response.status());
         String jsonString = response.text();
@@ -157,7 +160,7 @@ class UserTest {
 
     @Test
     void AsAdmin_FailToGetMissingUserById() {
-        APIResponse response = adminRequest.get("/api/users/43543637");
+        APIResponse response = adminRequest.get(API_USERS + "/43543637");
         assertFalse(response.ok(), "Expected 4xx status. Got: " + response.status());
         assertEquals(404, response.status());
     }
@@ -170,10 +173,10 @@ class UserTest {
                 "update_me_" + uniqueSuffix,
                 "update_me_" + uniqueSuffix + "@example.com",
                 "password123");
-        APIResponse createResponse = adminRequest.post("/api/users", RequestOptions.create().setData(createUser));
+        APIResponse createResponse = adminRequest.post(API_USERS, RequestOptions.create().setData(createUser));
         assertEquals(201, createResponse.status());
         JsonNode json = objectMapper.readTree(createResponse.text());
-        Integer userId = json.get("id").asInt();
+        Long userId = json.get("id").asLong();
 
         // Update user
         UserUpdateRequest updateRequest = new UserUpdateRequest(
@@ -181,25 +184,25 @@ class UserTest {
                 "updated_" + uniqueSuffix + "@example.com",
                 "new_password123");
 
-        APIResponse updateResponse = adminRequest.put("/api/users/" + userId, RequestOptions.create().setData(updateRequest));
+        APIResponse updateResponse = adminRequest.put(API_USERS + "/" + userId, RequestOptions.create().setData(updateRequest));
         assertEquals(200, updateResponse.status());
         JsonNode updatedJson = objectMapper.readTree(updateResponse.text());
-        Integer newUserID = updatedJson.get("id").asInt();
+        Long newUserID = updatedJson.get("id").asLong();
         assertEquals("updated_" + uniqueSuffix, updatedJson.get("username").asText());
         assertEquals("updated_" + uniqueSuffix + "@example.com", updatedJson.get("email").asText());
 
         // get user by newUserId
-        APIResponse getNewUserResponse = adminRequest.get("/api/users/" + newUserID);
+        APIResponse getNewUserResponse = adminRequest.get(API_USERS + "/" + newUserID);
         assertTrue(getNewUserResponse.ok(), "Expected 2xx status. Got: " + getNewUserResponse.status());
         assertEquals(200, getNewUserResponse.status());
 
         // delete the user
-        APIResponse responseDelete = adminRequest.delete("/api/users/" + newUserID);
+        APIResponse responseDelete = adminRequest.delete(API_USERS + "/" + newUserID);
         assertTrue(responseDelete.ok(), "Expected 2xx status. Got: " + responseDelete.status());
         assertEquals(204, responseDelete.status());
 
         // try to find the deleted user again
-        APIResponse responseget18deleted = adminRequest.get("/api/users/" + newUserID);
+        APIResponse responseget18deleted = adminRequest.get(API_USERS + "/" + newUserID);
         assertEquals(404, responseget18deleted.status(),
                 "Expected 404 Not Found after user deletion, but got: " + responseget18deleted.status());
     }
@@ -212,7 +215,7 @@ class UserTest {
                 "hacker@example.com",
                 "hacked123");
 
-        APIResponse updateResponse = userRequest.put("/api/users/1", RequestOptions.create().setData(updateRequest));
+        APIResponse updateResponse = userRequest.put(API_USERS + "/1", RequestOptions.create().setData(updateRequest));
         // The users attempt to update the user should fail with a 403 Forbidden
         assertEquals(403, updateResponse.status());
     }
